@@ -1,0 +1,17 @@
+node_modules
+dist
+.trae
+.env
+.env.local
+.vscode
+.next
+next-env.d.ts
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+.playwright/
+
+# Vercel
+.vercel
