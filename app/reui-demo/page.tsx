@@ -1,11 +1,11 @@
 "use client"
 
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -72,8 +72,153 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { MarkdownEditor } from "@/components/features/markdown/MarkdownEditor"
+import { MarkdownPreview } from "@/components/features/markdown/MarkdownPreview"
+import type { BytemdPlugin } from "bytemd"
+import gfm from "@bytemd/plugin-gfm"
+import highlight from "@bytemd/plugin-highlight"
+import breaks from "@bytemd/plugin-breaks"
+import gemoji from "@bytemd/plugin-gemoji"
+
+// ── Sample content ──────────────────────────────────────────────────────────
+
+const RICH_MARKDOWN = `# Getting Started with ByteMD :wave:
+
+A **powerful**, *lightweight* Markdown editor built on [CodeMirror](https://codemirror.net) with a live preview and plugin system.
+
+---
+
+## Supported Syntax
+
+### GFM Extensions
+
+| Feature | Syntax | Rendered |
+|---------|--------|----------|
+| Strikethrough | \`~~text~~\` | ~~deleted text~~ |
+| Task List | \`- [ ] item\` | see below |
+| Tables | \`| col | col |\` | this table! |
+| Autolink | raw URL | https://github.com |
+
+### Task List
+
+- [x] Install \`@bytemd/react\`
+- [x] Configure GFM plugin :white_check_mark:
+- [x] Add syntax highlighting
+- [ ] Write documentation
+- [ ] Deploy to production :rocket:
+
+### Code Highlighting
+
+\`\`\`typescript
+interface Post {
+  id: string
+  title: string
+  content: string
+  publishedAt: Date | null
+}
+
+async function publishPost(id: string): Promise<Post> {
+  const res = await fetch(\`/api/posts/\${id}/publish\`, { method: "PATCH" })
+  if (!res.ok) throw new Error(\`HTTP \${res.status}\`)
+  return res.json() as Promise<Post>
+}
+\`\`\`
+
+\`\`\`bash
+pnpm add @bytemd/react @bytemd/plugin-gfm @bytemd/plugin-highlight
+\`\`\`
+
+### Blockquote
+
+> "Markdown is not a replacement for HTML, or even close to it."
+> — **John Gruber**, creator of Markdown
+
+### Inline Formatting
+
+Use \`backticks\` for inline code. Support for **bold**, *italic*, ~~strikethrough~~.
+
+Emoji via gemoji plugin: :sparkles: :rocket: :fire: :tada: :zap:
+`
+
+const PREVIEW_ONLY_MARKDOWN = `## MarkdownPreview Component
+
+This section renders using the **read-only** \`MarkdownPreview\` component — no editor, no toolbar, just clean rendered output.
+
+### When to use
+
+- Blog post rendering
+- Comment display
+- Documentation viewer
+- Any static markdown display
+
+### Feature matrix
+
+| Plugin | Purpose | Enabled |
+|--------|---------|---------|
+| \`@bytemd/plugin-gfm\` | Tables, task lists, strikethrough | :white_check_mark: |
+| \`@bytemd/plugin-highlight\` | 180+ language code blocks | :white_check_mark: |
+| \`@bytemd/plugin-breaks\` | Soft line breaks | :white_check_mark: |
+| \`@bytemd/plugin-gemoji\` | Emoji shortcodes | :white_check_mark: |
+| \`@bytemd/plugin-mermaid\` | Diagrams & flowcharts | optional |
+| \`@bytemd/plugin-math\` | LaTeX math formulas | optional |
+
+### Code example
+
+\`\`\`tsx
+import { MarkdownPreview } from "@/components/features/markdown/MarkdownPreview"
+
+export function BlogPost({ content }: { content: string }) {
+  return (
+    <article className="max-w-prose mx-auto py-8">
+      <MarkdownPreview value={content} />
+    </article>
+  )
+}
+\`\`\`
+
+> Pass a custom \`plugins\` prop to extend with mermaid, math, or your own \`BytemdPlugin\`.
+`
+
+const DISABLED_MARKDOWN = `# Read-only Content
+
+This editor is in **disabled** mode — \`editorConfig={{ readOnly: true }}\` is applied and the wrapper has \`pointer-events-none opacity-60\`.
+
+\`\`\`typescript
+<MarkdownEditor
+  value={content}
+  onChange={() => {}}
+  disabled={true}
+/>
+\`\`\`
+
+Useful for **previewing** a submission before publishing, or showing archived content.
+`
+
+// ── Page component ───────────────────────────────────────────────────────────
 
 export default function ReUIDemoPage() {
+  // Markdown demo state
+  const [liveValue, setLiveValue] = useState(RICH_MARKDOWN)
+  const [editorMode, setEditorMode] = useState<"auto" | "split" | "tab">("tab")
+  const [editorHeight, setEditorHeight] = useState(480)
+  const [showCustomPlugin, setShowCustomPlugin] = useState(false)
+
+  const defaultPlugins = useMemo<BytemdPlugin[]>(
+    () => [gfm(), highlight(), breaks(), gemoji()],
+    [],
+  )
+
+  // Add a custom plugin example: wrap ==text== in <mark>
+  const customPlugins = useMemo<BytemdPlugin[]>(() => {
+    if (!showCustomPlugin) return defaultPlugins
+    const markPlugin: BytemdPlugin = {
+      remark: (processor) =>
+        // Demo: a no-op remark plugin showing the extension point
+        processor.use(() => (tree: object) => tree),
+    }
+    return [...defaultPlugins, markPlugin]
+  }, [defaultPlugins, showCustomPlugin])
+
   return (
     <div className="container mx-auto py-10 space-y-10">
       <div className="space-y-2">
@@ -83,8 +228,9 @@ export default function ReUIDemoPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="buttons" className="space-y-4">
+      <Tabs defaultValue="markdown" className="space-y-4">
         <TabsList className="w-full justify-start overflow-x-auto">
+          <TabsTrigger value="markdown">Markdown</TabsTrigger>
           <TabsTrigger value="buttons">Buttons & Inputs</TabsTrigger>
           <TabsTrigger value="cards">Cards & Layout</TabsTrigger>
           <TabsTrigger value="data">Data Display</TabsTrigger>
@@ -92,6 +238,285 @@ export default function ReUIDemoPage() {
           <TabsTrigger value="forms">Forms</TabsTrigger>
         </TabsList>
 
+        {/* ── Markdown Tab ──────────────────────────────────────────────── */}
+        <TabsContent value="markdown" className="space-y-8">
+
+          {/* 1. Interactive Editor */}
+          <section className="space-y-4">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xl font-semibold">MarkdownEditor</h2>
+              <p className="text-sm text-muted-foreground">
+                Full-featured editor — GFM, syntax highlighting, emoji, image upload support.
+              </p>
+            </div>
+
+            {/* Controls */}
+            <div className="flex flex-wrap items-center gap-4 rounded-lg border bg-muted/40 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="mode-select" className="text-sm font-medium shrink-0">
+                  Layout mode
+                </Label>
+                <Select
+                  value={editorMode}
+                  onValueChange={(v) => setEditorMode(v as typeof editorMode)}
+                >
+                  <SelectTrigger id="mode-select" className="w-28 h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tab">tab</SelectItem>
+                    <SelectItem value="split">split</SelectItem>
+                    <SelectItem value="auto">auto</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Label htmlFor="height-select" className="text-sm font-medium shrink-0">
+                  Height
+                </Label>
+                <Select
+                  value={String(editorHeight)}
+                  onValueChange={(v) => setEditorHeight(Number(v))}
+                >
+                  <SelectTrigger id="height-select" className="w-24 h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="320">320 px</SelectItem>
+                    <SelectItem value="480">480 px</SelectItem>
+                    <SelectItem value="640">640 px</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="custom-plugin"
+                  checked={showCustomPlugin}
+                  onCheckedChange={setShowCustomPlugin}
+                />
+                <Label htmlFor="custom-plugin" className="text-sm">
+                  Custom plugin demo
+                </Label>
+              </div>
+
+              <div className="ml-auto flex items-center gap-2">
+                <Badge variant="secondary" className="font-mono text-xs">
+                  {liveValue.length} chars
+                </Badge>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setLiveValue(RICH_MARKDOWN)}
+                >
+                  Reset
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    toast.success("Saved!", {
+                      description: `${liveValue.length} characters saved.`,
+                    })
+                  }
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
+
+            <MarkdownEditor
+              value={liveValue}
+              onChange={setLiveValue}
+              mode={editorMode}
+              height={editorHeight}
+              plugins={customPlugins}
+              placeholder="Start writing your markdown here..."
+            />
+          </section>
+
+          <Separator />
+
+          {/* 2. Preview-only viewer */}
+          <section className="space-y-4">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xl font-semibold">MarkdownPreview</h2>
+              <p className="text-sm text-muted-foreground">
+                Read-only viewer — renders markdown with no editor chrome. Pass the same
+                <code className="mx-1 rounded bg-muted px-1 py-0.5 text-xs font-mono">plugins</code>
+                prop as the editor for consistent output.
+              </p>
+            </div>
+
+            <div className="rounded-lg border p-6">
+              <MarkdownPreview value={PREVIEW_ONLY_MARKDOWN} />
+            </div>
+          </section>
+
+          <Separator />
+
+          {/* 3. Live editor + detached preview side-by-side */}
+          <section className="space-y-4">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xl font-semibold">Editor + Detached Preview</h2>
+              <p className="text-sm text-muted-foreground">
+                Compose the editor and preview independently. Useful for custom layouts — e.g. a
+                dialog editor with a full-page preview panel.
+              </p>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Editor (mode="tab", height=300)
+                </p>
+                <MarkdownEditor
+                  value={liveValue}
+                  onChange={setLiveValue}
+                  mode="tab"
+                  height={300}
+                />
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Preview (MarkdownPreview)
+                </p>
+                <div className="h-[300px] overflow-y-auto rounded-lg border p-4">
+                  <MarkdownPreview value={liveValue} />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <Separator />
+
+          {/* 4. States */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold">States</h2>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Disabled */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Disabled</CardTitle>
+                  <CardDescription>
+                    Pass <code className="font-mono text-xs">disabled</code> to prevent all interaction.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MarkdownEditor
+                    value={DISABLED_MARKDOWN}
+                    onChange={() => undefined}
+                    height={260}
+                    mode="tab"
+                    disabled
+                  />
+                </CardContent>
+              </Card>
+
+              {/* maxLength */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Character Limit</CardTitle>
+                  <CardDescription>
+                    <code className="font-mono text-xs">maxLength=280</code> — useful for comments
+                    or short-form content. ByteMD shows the counter in the status bar.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MarkdownEditor
+                    value="Type something here... :pencil:"
+                    onChange={() => undefined}
+                    height={260}
+                    mode="tab"
+                    maxLength={280}
+                    placeholder="Max 280 characters..."
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <Separator />
+
+          {/* 5. Dialog editor */}
+          <section className="space-y-4">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xl font-semibold">Editor in a Dialog</h2>
+              <p className="text-sm text-muted-foreground">
+                Mount the editor inside any overlay. Uses{" "}
+                <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">height="calc(60vh - 6rem)"</code>
+                {" "}for flexible sizing.
+              </p>
+            </div>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline">Open Markdown Editor</Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                  <DialogTitle>Edit post</DialogTitle>
+                  <DialogDescription>
+                    Write your content in Markdown. Changes are not saved automatically.
+                  </DialogDescription>
+                </DialogHeader>
+                <MarkdownEditor
+                  value={liveValue}
+                  onChange={setLiveValue}
+                  mode="split"
+                  height="calc(60vh - 6rem)"
+                />
+                <DialogFooter>
+                  <Button variant="outline">Discard</Button>
+                  <Button
+                    onClick={() =>
+                      toast.success("Post saved!", {
+                        description: `${liveValue.length} characters`,
+                      })
+                    }
+                  >
+                    Save post
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </section>
+
+          <Separator />
+
+          {/* 6. Upload images demo */}
+          <section className="space-y-4">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xl font-semibold">Custom Image Upload</h2>
+              <p className="text-sm text-muted-foreground">
+                Pass <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">uploadImages</code> to
+                handle image drag-and-drop or the toolbar upload button. The handler receives{" "}
+                <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">File[]</code> and
+                returns <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">{"{ title, url, alt? }[]"}</code>.
+              </p>
+            </div>
+
+            <MarkdownEditor
+              value="Drop an image here or click the image button in the toolbar :camera:"
+              onChange={() => undefined}
+              height={200}
+              mode="tab"
+              uploadImages={async (files) => {
+                // Simulate upload — in production, call your UploadThing/S3 handler
+                await new Promise((r) => setTimeout(r, 600))
+                toast.success(`Uploaded ${files.length} file(s)`)
+                return files.map((f) => ({
+                  title: f.name,
+                  url: URL.createObjectURL(f),
+                  alt: f.name,
+                }))
+              }}
+            />
+          </section>
+        </TabsContent>
+
+        {/* ── Original tabs (unchanged) ──────────────────────────────────── */}
         <TabsContent value="buttons" className="space-y-8">
           <section className="space-y-4">
             <h2 className="text-xl font-semibold">Buttons</h2>
@@ -129,9 +554,6 @@ export default function ReUIDemoPage() {
               <CardContent>
                 <p>Card Content goes here.</p>
               </CardContent>
-              <CardFooter>
-                <Button className="w-full">Action</Button>
-              </CardFooter>
             </Card>
 
             <Card>
@@ -163,10 +585,6 @@ export default function ReUIDemoPage() {
                   </div>
                 </form>
               </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline">Cancel</Button>
-                <Button>Deploy</Button>
-              </CardFooter>
             </Card>
           </div>
 
@@ -252,10 +670,8 @@ export default function ReUIDemoPage() {
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">
-                          Name
-                        </Label>
-                        <Input id="name" value="Pedro Duarte" className="col-span-3" />
+                        <Label htmlFor="dialog-name" className="text-right">Name</Label>
+                        <Input id="dialog-name" value="Pedro Duarte" className="col-span-3" />
                       </div>
                     </div>
                     <DialogFooter>
@@ -374,7 +790,8 @@ export default function ReUIDemoPage() {
           </div>
         </TabsContent>
       </Tabs>
-      <Toaster />
+
+      <Toaster richColors />
     </div>
   )
 }

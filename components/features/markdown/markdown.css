@@ -1,0 +1,445 @@
+/* =====================================================
+   ByteMD Theme — adapts to project CSS design tokens
+   ===================================================== */
+
+/* ── Container ─────────────────────────────────────── */
+.bytemd {
+  height: var(--md-editor-height, 500px);
+  border-color: var(--border);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* ── Toolbar ────────────────────────────────────────── */
+.bytemd-toolbar {
+  background-color: var(--muted);
+  border-bottom-color: var(--border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.bytemd-toolbar-icon {
+  color: var(--muted-foreground);
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.bytemd-toolbar-icon:hover,
+.bytemd-toolbar-icon.bytemd-toolbar-icon-active {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  box-shadow: none;
+}
+
+.bytemd-toolbar-tab {
+  color: var(--muted-foreground);
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.bytemd-toolbar-tab.active {
+  color: var(--foreground);
+  border-bottom-color: var(--primary);
+}
+
+/* ── Status bar ─────────────────────────────────────── */
+.bytemd-status {
+  background-color: var(--muted);
+  border-top-color: var(--border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+}
+
+.bytemd-status-right-item {
+  color: var(--muted-foreground);
+}
+
+/* ── Split view ─────────────────────────────────────── */
+.bytemd-body {
+  border-color: var(--border);
+}
+
+.bytemd-preview {
+  background-color: var(--background);
+  border-left-color: var(--border);
+}
+
+/* ── Dropdown / Popup ───────────────────────────────── */
+.bytemd-dropdown {
+  background-color: var(--popover) !important;
+  border-color: var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+}
+
+.bytemd-dropdown-item:hover {
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+}
+
+/* ── Help panel ─────────────────────────────────────── */
+.bytemd-help {
+  background-color: var(--popover);
+  border-color: var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* =====================================================
+   CodeMirror Editor Theming
+   ===================================================== */
+
+.bytemd .CodeMirror {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  height: 100%;
+}
+
+.bytemd .CodeMirror-scroll {
+  padding: 0.75rem 1rem;
+}
+
+.bytemd .CodeMirror-cursor {
+  border-left-color: var(--foreground);
+}
+
+.bytemd .CodeMirror-selected {
+  background-color: var(--selection) !important;
+}
+
+.bytemd .CodeMirror-line::selection,
+.bytemd .CodeMirror-line > span::selection,
+.bytemd .CodeMirror-line > span > span::selection {
+  background-color: var(--selection);
+}
+
+.bytemd .CodeMirror-placeholder {
+  color: var(--muted-foreground) !important;
+  font-style: italic;
+}
+
+/* Syntax tokens */
+.bytemd .cm-header {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.bytemd .cm-strong {
+  font-weight: 700;
+}
+
+.bytemd .cm-em {
+  font-style: italic;
+}
+
+.bytemd .cm-link {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.bytemd .cm-url {
+  color: var(--muted-foreground);
+}
+
+.bytemd .cm-strikethrough {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.bytemd .cm-code {
+  background-color: var(--code);
+  color: var(--code-foreground);
+  border-radius: var(--radius-sm);
+  padding: 0 0.25rem;
+  font-family: var(--font-mono);
+}
+
+.bytemd .cm-comment {
+  color: var(--muted-foreground);
+}
+
+/* Scrollbars */
+.bytemd .CodeMirror-vscrollbar::-webkit-scrollbar,
+.bytemd .CodeMirror-hscrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.bytemd .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.bytemd .CodeMirror-hscrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bytemd .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.bytemd .CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+  background: var(--input);
+  border-radius: 5px;
+}
+
+/* =====================================================
+   Markdown Body (Preview panel + Viewer)
+   ===================================================== */
+
+.markdown-body {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+}
+
+/* Headings */
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  color: var(--foreground) !important;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-body h1,
+.markdown-body h2 {
+  border-bottom: 1px solid var(--border) !important;
+  padding-bottom: 0.3em;
+}
+
+.markdown-body h1 { font-size: 1.75rem; }
+.markdown-body h2 { font-size: 1.375rem; }
+.markdown-body h3 { font-size: 1.125rem; }
+.markdown-body h4 { font-size: 1rem; }
+
+/* Links */
+.markdown-body a {
+  color: var(--primary) !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.markdown-body a:hover {
+  opacity: 0.75;
+}
+
+/* Blockquotes */
+.markdown-body blockquote {
+  border-left: 3px solid var(--border) !important;
+  color: var(--muted-foreground) !important;
+  background-color: var(--muted) !important;
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.markdown-body blockquote > p {
+  margin: 0;
+}
+
+/* Tables */
+.markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+}
+
+.markdown-body table th {
+  background-color: var(--muted) !important;
+  color: var(--muted-foreground) !important;
+  font-weight: 600;
+  border: 1px solid var(--border) !important;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.markdown-body table td {
+  border: 1px solid var(--border) !important;
+  padding: 0.5rem 0.75rem;
+}
+
+.markdown-body table tr:nth-child(even) td {
+  background-color: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
+/* Inline code */
+.markdown-body code:not(pre code) {
+  background-color: var(--code) !important;
+  color: var(--code-foreground) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.15em 0.45em !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.875em !important;
+  font-weight: 500;
+}
+
+/* Code blocks */
+.markdown-body pre {
+  background-color: var(--code) !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md) !important;
+  overflow-x: auto;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+}
+
+.markdown-body pre code {
+  background-color: transparent !important;
+  padding: 0 !important;
+  color: var(--code-foreground) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.875rem !important;
+  font-weight: 400;
+}
+
+/* HR */
+.markdown-body hr {
+  border: none !important;
+  border-top: 1px solid var(--border) !important;
+  margin: 1.5rem 0;
+}
+
+/* Images */
+.markdown-body img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+}
+
+/* Lists */
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.markdown-body li + li {
+  margin-top: 0.25rem;
+}
+
+/* GFM task lists */
+.markdown-body .task-list-item {
+  list-style: none;
+  margin-left: -1.5rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-body .task-list-item input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: var(--primary);
+  width: 0.875rem;
+  height: 0.875rem;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+/* =====================================================
+   Highlight.js — Dark mode overrides
+   (light mode uses imported github.css theme)
+   ===================================================== */
+
+.dark .hljs {
+  background: var(--code) !important;
+  color: #c9d1d9 !important;
+}
+
+.dark .hljs-doctag,
+.dark .hljs-keyword,
+.dark .hljs-meta .hljs-keyword,
+.dark .hljs-template-tag,
+.dark .hljs-template-variable,
+.dark .hljs-type,
+.dark .hljs-variable.language_ {
+  color: #ff7b72;
+}
+
+.dark .hljs-title,
+.dark .hljs-title.class_,
+.dark .hljs-title.class_.inherited__,
+.dark .hljs-title.function_ {
+  color: #d2a8ff;
+}
+
+.dark .hljs-attr,
+.dark .hljs-attribute,
+.dark .hljs-literal,
+.dark .hljs-meta,
+.dark .hljs-number,
+.dark .hljs-operator,
+.dark .hljs-selector-attr,
+.dark .hljs-selector-class,
+.dark .hljs-selector-id {
+  color: #79c0ff;
+}
+
+.dark .hljs-variable,
+.dark .hljs-params {
+  color: #ffa657;
+}
+
+.dark .hljs-regexp,
+.dark .hljs-string,
+.dark .hljs-meta .hljs-string {
+  color: #a5d6ff;
+}
+
+.dark .hljs-built_in,
+.dark .hljs-symbol {
+  color: #ffa657;
+}
+
+.dark .hljs-comment,
+.dark .hljs-code,
+.dark .hljs-formula {
+  color: #8b949e;
+  font-style: italic;
+}
+
+.dark .hljs-name,
+.dark .hljs-quote,
+.dark .hljs-selector-tag,
+.dark .hljs-selector-pseudo {
+  color: #7ee787;
+}
+
+.dark .hljs-subst {
+  color: #c9d1d9;
+}
+
+.dark .hljs-section {
+  color: #1f6feb;
+  font-weight: 700;
+}
+
+.dark .hljs-tag {
+  color: #7ee787;
+}
+
+.dark .hljs-deletion {
+  color: #ffdcd7;
+  background-color: #67060c;
+}
+
+.dark .hljs-addition {
+  color: #aff5b4;
+  background-color: #033a16;
+}
+
+.dark .hljs-emphasis {
+  font-style: italic;
+}
+
+.dark .hljs-strong {
+  font-weight: 700;
+}
