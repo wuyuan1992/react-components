@@ -79,8 +79,20 @@ import gfm from "@bytemd/plugin-gfm"
 import highlight from "@bytemd/plugin-highlight"
 import breaks from "@bytemd/plugin-breaks"
 import gemoji from "@bytemd/plugin-gemoji"
+import { cn } from "@/lib/utils"
+import type { ChartConfig, CurveType } from "@/components/features/charts"
+import {
+  LineChart,
+  BarChart,
+  SingleBarChart,
+  AreaChart,
+  PieChart,
+  ScatterChart,
+  RadarChart,
+  ComposedChart,
+} from "@/components/features/charts"
 
-// ── Sample content ──────────────────────────────────────────────────────────
+// ── Markdown sample content ───────────────────────────────────────────────────
 
 const RICH_MARKDOWN = `# Getting Started with ByteMD :wave:
 
@@ -194,7 +206,175 @@ This editor is in **disabled** mode — \`editorConfig={{ readOnly: true }}\` is
 Useful for **previewing** a submission before publishing, or showing archived content.
 `
 
-// ── Page component ───────────────────────────────────────────────────────────
+// ── Chart data ────────────────────────────────────────────────────────────────
+
+const MONTHLY_DATA = [
+  { month: "Jan", revenue: 18400, profit: 4200, expenses: 14200 },
+  { month: "Feb", revenue: 22100, profit: 5800, expenses: 16300 },
+  { month: "Mar", revenue: 19800, profit: 4600, expenses: 15200 },
+  { month: "Apr", revenue: 28500, profit: 7900, expenses: 20600 },
+  { month: "May", revenue: 32100, profit: 9400, expenses: 22700 },
+  { month: "Jun", revenue: 29700, profit: 8200, expenses: 21500 },
+  { month: "Jul", revenue: 35200, profit: 11800, expenses: 23400 },
+  { month: "Aug", revenue: 38900, profit: 13200, expenses: 25700 },
+  { month: "Sep", revenue: 34600, profit: 10500, expenses: 24100 },
+  { month: "Oct", revenue: 41300, profit: 15700, expenses: 25600 },
+  { month: "Nov", revenue: 43800, profit: 16900, expenses: 26900 },
+  { month: "Dec", revenue: 48200, profit: 19400, expenses: 28800 },
+]
+
+const BROWSER_DATA = [
+  { browser: "chrome", visitors: 12840 },
+  { browser: "safari", visitors: 7520 },
+  { browser: "firefox", visitors: 4230 },
+  { browser: "edge", visitors: 3180 },
+  { browser: "other", visitors: 1490 },
+]
+
+const PLATFORM_DATA = [
+  { name: "desktop", value: 52400 },
+  { name: "mobile", value: 38200 },
+  { name: "tablet", value: 12800 },
+  { name: "tv", value: 4100 },
+]
+
+const RADAR_DATA = [
+  { subject: "Performance", product: 88, benchmark: 72 },
+  { subject: "Security", product: 95, benchmark: 88 },
+  { subject: "Usability", product: 76, benchmark: 82 },
+  { subject: "Reliability", product: 91, benchmark: 85 },
+  { subject: "Features", product: 83, benchmark: 78 },
+  { subject: "Support", product: 70, benchmark: 90 },
+]
+
+const SCATTER_SERIES = [
+  {
+    key: "alpha",
+    data: [
+      { x: 8, y: 32 }, { x: 14, y: 41 }, { x: 20, y: 56 }, { x: 25, y: 62 },
+      { x: 31, y: 70 }, { x: 38, y: 74 }, { x: 44, y: 82 }, { x: 52, y: 90 },
+    ],
+  },
+  {
+    key: "beta",
+    data: [
+      { x: 5, y: 18 }, { x: 12, y: 27 }, { x: 18, y: 35 }, { x: 24, y: 42 },
+      { x: 30, y: 48 }, { x: 36, y: 52 }, { x: 42, y: 58 }, { x: 48, y: 65 },
+    ],
+  },
+  {
+    key: "gamma",
+    data: [
+      { x: 10, y: 55 }, { x: 16, y: 60 }, { x: 22, y: 65 }, { x: 28, y: 58 },
+      { x: 34, y: 72 }, { x: 40, y: 78 }, { x: 46, y: 85 }, { x: 50, y: 91 },
+    ],
+  },
+]
+
+const COMPOSED_DATA = [
+  { period: "Q1'23", revenue: 24000, profit: 8000, target: 22000 },
+  { period: "Q2'23", revenue: 28500, profit: 9200, target: 26000 },
+  { period: "Q3'23", revenue: 31200, profit: 10800, target: 30000 },
+  { period: "Q4'23", revenue: 38900, profit: 14200, target: 35000 },
+  { period: "Q1'24", revenue: 32100, profit: 11600, target: 34000 },
+  { period: "Q2'24", revenue: 41300, profit: 16700, target: 40000 },
+  { period: "Q3'24", revenue: 44800, profit: 18300, target: 45000 },
+  { period: "Q4'24", revenue: 52600, profit: 21900, target: 50000 },
+]
+
+// ── Chart configs (defined outside component to avoid recreation) ─────────────
+
+const MONTHLY_CONFIG: ChartConfig = {
+  revenue: { label: "Revenue", color: "var(--color-chart-1)" },
+  profit: { label: "Profit", color: "var(--color-chart-2)" },
+  expenses: { label: "Expenses", color: "var(--color-chart-3)" },
+}
+
+const BROWSER_CONFIG: ChartConfig = {
+  chrome: { label: "Chrome", color: "var(--color-chart-1)" },
+  safari: { label: "Safari", color: "var(--color-chart-2)" },
+  firefox: { label: "Firefox", color: "var(--color-chart-3)" },
+  edge: { label: "Edge", color: "var(--color-chart-4)" },
+  other: { label: "Other", color: "var(--color-chart-5)" },
+}
+
+const PLATFORM_CONFIG: ChartConfig = {
+  desktop: { label: "Desktop", color: "var(--color-chart-1)" },
+  mobile: { label: "Mobile", color: "var(--color-chart-2)" },
+  tablet: { label: "Tablet", color: "var(--color-chart-3)" },
+  tv: { label: "TV", color: "var(--color-chart-4)" },
+}
+
+const RADAR_CONFIG: ChartConfig = {
+  product: { label: "Our Product", color: "var(--color-chart-1)" },
+  benchmark: { label: "Benchmark", color: "var(--color-chart-2)" },
+}
+
+const SCATTER_CONFIG: ChartConfig = {
+  alpha: { label: "Team Alpha", color: "var(--color-chart-1)" },
+  beta: { label: "Team Beta", color: "var(--color-chart-2)" },
+  gamma: { label: "Team Gamma", color: "var(--color-chart-3)" },
+}
+
+const COMPOSED_CONFIG: ChartConfig = {
+  revenue: { label: "Revenue", color: "var(--color-chart-1)" },
+  profit: { label: "Profit", color: "var(--color-chart-2)" },
+  target: { label: "Target", color: "var(--color-chart-3)" },
+}
+
+const SERIES_KEYS = ["revenue", "profit", "expenses"] as const
+
+// ── KPI helper ────────────────────────────────────────────────────────────────
+
+function formatK(n: number) {
+  return n >= 1000 ? `$${(n / 1000).toFixed(1)}K` : `$${n}`
+}
+
+function pct(a: number, b: number) {
+  const diff = ((a - b) / b) * 100
+  return { change: `${diff >= 0 ? "+" : ""}${diff.toFixed(1)}%`, up: diff >= 0 }
+}
+
+interface KpiItem {
+  label: string
+  value: string
+  change?: string
+  value2?: string
+  up: boolean
+  sub: string
+  invert?: boolean
+}
+
+const KPI_DATA: KpiItem[] = [
+  {
+    label: "Revenue (Dec)",
+    value: formatK(48200),
+    ...pct(48200, 43800),
+    sub: "vs November",
+  },
+  {
+    label: "Net Profit",
+    value: formatK(19400),
+    ...pct(19400, 16900),
+    sub: "vs November",
+  },
+  {
+    label: "Expenses",
+    value: formatK(28800),
+    ...pct(28800, 26900),
+    sub: "vs November",
+    invert: true,
+  },
+  {
+    label: "Profit Margin",
+    value: "40.2%",
+    value2: "+1.6 pts",
+    up: true,
+    sub: "vs November",
+  },
+]
+
+// ── Page component ────────────────────────────────────────────────────────────
 
 export default function ReUIDemoPage() {
   // Markdown demo state
@@ -208,16 +388,45 @@ export default function ReUIDemoPage() {
     [],
   )
 
-  // Add a custom plugin example: wrap ==text== in <mark>
   const customPlugins = useMemo<BytemdPlugin[]>(() => {
     if (!showCustomPlugin) return defaultPlugins
     const markPlugin: BytemdPlugin = {
       remark: (processor) =>
-        // Demo: a no-op remark plugin showing the extension point
         processor.use(() => (tree: object) => tree),
     }
     return [...defaultPlugins, markPlugin]
   }, [defaultPlugins, showCustomPlugin])
+
+  // Chart controls — time series
+  const [tsType, setTsType] = useState<"line" | "area" | "bar">("line")
+  const [tsGrid, setTsGrid] = useState(true)
+  const [tsLegend, setTsLegend] = useState(true)
+  const [tsDots, setTsDots] = useState(false)
+  const [tsStacked, setTsStacked] = useState(false)
+  const [tsCurve, setTsCurve] = useState<CurveType>("monotone")
+  const [activeSeries, setActiveSeries] = useState<string[]>([
+    "revenue",
+    "profit",
+    "expenses",
+  ])
+
+  function toggleSeries(key: string) {
+    setActiveSeries((prev) =>
+      prev.includes(key) ? prev.filter((s) => s !== key) : [...prev, key],
+    )
+  }
+
+  // Chart controls — pie
+  const [pieDonut, setPieDonut] = useState(true)
+  const [pieLabel, setPieLabel] = useState(false)
+  const [pieLegend, setPieLegend] = useState(true)
+
+  // Chart controls — radar
+  const [radarLineOnly, setRadarLineOnly] = useState(false)
+  const [radarFillOpacity, setRadarFillOpacity] = useState(20)
+
+  // Chart controls — scatter
+  const [scatterLegend, setScatterLegend] = useState(true)
 
   return (
     <div className="container mx-auto py-10 space-y-10">
@@ -228,8 +437,9 @@ export default function ReUIDemoPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="markdown" className="space-y-4">
+      <Tabs defaultValue="charts" className="space-y-4">
         <TabsList className="w-full justify-start overflow-x-auto">
+          <TabsTrigger value="charts">Charts</TabsTrigger>
           <TabsTrigger value="markdown">Markdown</TabsTrigger>
           <TabsTrigger value="buttons">Buttons & Inputs</TabsTrigger>
           <TabsTrigger value="cards">Cards & Layout</TabsTrigger>
@@ -238,10 +448,534 @@ export default function ReUIDemoPage() {
           <TabsTrigger value="forms">Forms</TabsTrigger>
         </TabsList>
 
-        {/* ── Markdown Tab ──────────────────────────────────────────────── */}
+        {/* ── Charts Tab ────────────────────────────────────────────────────── */}
+        <TabsContent value="charts" className="space-y-8">
+
+          {/* KPI cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {KPI_DATA.map((kpi) => {
+              const isUp = kpi.invert ? !kpi.up : kpi.up
+              return (
+                <Card key={kpi.label} className="overflow-hidden">
+                  <CardContent className="pt-5 pb-5">
+                    <p className="text-xs text-muted-foreground mb-1">{kpi.label}</p>
+                    <p className="text-2xl font-bold tracking-tight">{kpi.value}</p>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <Badge
+                        variant={isUp ? "default" : "destructive"}
+                        className="text-[10px] px-1.5 py-0 h-4 font-medium"
+                      >
+                        {kpi.value2 ?? kpi.change}
+                      </Badge>
+                      <span className="text-[11px] text-muted-foreground">{kpi.sub}</span>
+                    </div>
+                  </CardContent>
+                  <div
+                    className={cn(
+                      "h-1 w-full",
+                      isUp ? "bg-chart-2" : "bg-destructive",
+                    )}
+                    style={{ opacity: 0.6 }}
+                  />
+                </Card>
+              )
+            })}
+          </div>
+
+          {/* ── Time Series Section ──────────────────────────────────────── */}
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold">Time Series</h2>
+              <p className="text-sm text-muted-foreground">
+                Monthly revenue, profit and expenses — toggle chart type and display options live.
+              </p>
+            </div>
+
+            <Card>
+              <CardHeader className="pb-2 border-b">
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Chart type button group */}
+                  <div className="inline-flex rounded-md border overflow-hidden shrink-0">
+                    {(["line", "area", "bar"] as const).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setTsType(type)}
+                        className={cn(
+                          "px-3 h-8 text-xs font-medium capitalize border-r last:border-r-0 transition-colors",
+                          tsType === type
+                            ? "bg-primary text-primary-foreground"
+                            : "hover:bg-muted/60 text-muted-foreground",
+                        )}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Series toggles */}
+                  <div className="flex items-center gap-3">
+                    {SERIES_KEYS.map((key) => {
+                      const colorIdx = SERIES_KEYS.indexOf(key) + 1
+                      return (
+                        <label
+                          key={key}
+                          className="flex items-center gap-1.5 cursor-pointer select-none"
+                        >
+                          <Checkbox
+                            checked={activeSeries.includes(key)}
+                            onCheckedChange={() => toggleSeries(key)}
+                            style={
+                              {
+                                "--cb-color": `var(--color-chart-${colorIdx})`,
+                              } as React.CSSProperties
+                            }
+                          />
+                          <span className="text-xs capitalize">{key}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+
+                  <div className="ml-auto flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-1.5">
+                      <Switch
+                        id="ts-grid"
+                        checked={tsGrid}
+                        onCheckedChange={setTsGrid}
+                        className="scale-90"
+                      />
+                      <Label htmlFor="ts-grid" className="text-xs">Grid</Label>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Switch
+                        id="ts-legend"
+                        checked={tsLegend}
+                        onCheckedChange={setTsLegend}
+                        className="scale-90"
+                      />
+                      <Label htmlFor="ts-legend" className="text-xs">Legend</Label>
+                    </div>
+
+                    {tsType !== "bar" && (
+                      <>
+                        <div className="flex items-center gap-1.5">
+                          <Switch
+                            id="ts-dots"
+                            checked={tsDots}
+                            onCheckedChange={setTsDots}
+                            className="scale-90"
+                          />
+                          <Label htmlFor="ts-dots" className="text-xs">Dots</Label>
+                        </div>
+                        <Select
+                          value={tsCurve}
+                          onValueChange={(v) => setTsCurve(v as CurveType)}
+                        >
+                          <SelectTrigger className="h-7 text-xs w-28">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="monotone">Monotone</SelectItem>
+                            <SelectItem value="linear">Linear</SelectItem>
+                            <SelectItem value="step">Step</SelectItem>
+                            <SelectItem value="natural">Natural</SelectItem>
+                            <SelectItem value="basis">Basis</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </>
+                    )}
+
+                    {(tsType === "area" || tsType === "bar") && (
+                      <div className="flex items-center gap-1.5">
+                        <Switch
+                          id="ts-stacked"
+                          checked={tsStacked}
+                          onCheckedChange={setTsStacked}
+                          className="scale-90"
+                        />
+                        <Label htmlFor="ts-stacked" className="text-xs">Stacked</Label>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="pt-4">
+                {tsType === "line" && (
+                  <LineChart
+                    data={MONTHLY_DATA}
+                    config={MONTHLY_CONFIG}
+                    lines={activeSeries}
+                    xAxisKey="month"
+                    curveType={tsCurve}
+                    showDots={tsDots}
+                    showGrid={tsGrid}
+                    showLegend={tsLegend}
+                    height={320}
+                  />
+                )}
+                {tsType === "area" && (
+                  <AreaChart
+                    data={MONTHLY_DATA}
+                    config={MONTHLY_CONFIG}
+                    areas={activeSeries}
+                    xAxisKey="month"
+                    curveType={tsCurve}
+                    stacked={tsStacked}
+                    showGrid={tsGrid}
+                    showLegend={tsLegend}
+                    height={320}
+                  />
+                )}
+                {tsType === "bar" && (
+                  <BarChart
+                    data={MONTHLY_DATA}
+                    config={MONTHLY_CONFIG}
+                    bars={activeSeries}
+                    xAxisKey="month"
+                    stacked={tsStacked}
+                    showGrid={tsGrid}
+                    showLegend={tsLegend}
+                    height={320}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* ── Distribution ─────────────────────────────────────────────── */}
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold">Distribution</h2>
+              <p className="text-sm text-muted-foreground">
+                Categorical breakdowns — pie / donut and per-category bar.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Pie / Donut */}
+              <Card>
+                <CardHeader className="pb-2 border-b">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <CardTitle className="text-sm font-semibold">Browser Market Share</CardTitle>
+                      <CardDescription className="text-xs mt-0.5">
+                        Monthly unique visitors by browser
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <Switch
+                          id="pie-donut"
+                          checked={pieDonut}
+                          onCheckedChange={setPieDonut}
+                          className="scale-75"
+                        />
+                        <span className="text-xs text-muted-foreground">Donut</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <Switch
+                          id="pie-label"
+                          checked={pieLabel}
+                          onCheckedChange={setPieLabel}
+                          className="scale-75"
+                        />
+                        <span className="text-xs text-muted-foreground">Labels</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <Switch
+                          id="pie-legend"
+                          checked={pieLegend}
+                          onCheckedChange={setPieLegend}
+                          className="scale-75"
+                        />
+                        <span className="text-xs text-muted-foreground">Legend</span>
+                      </label>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <PieChart
+                    data={BROWSER_DATA}
+                    config={BROWSER_CONFIG}
+                    nameKey="browser"
+                    dataKey="visitors"
+                    donut={pieDonut}
+                    showLabel={pieLabel}
+                    showLegend={pieLegend}
+                    height={260}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Per-category bar */}
+              <Card>
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="text-sm font-semibold">Platform Breakdown</CardTitle>
+                  <CardDescription className="text-xs mt-0.5">
+                    Sessions by device category — each bar colored individually
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <SingleBarChart
+                    data={PLATFORM_DATA}
+                    config={PLATFORM_CONFIG}
+                    height={260}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* ── Horizontal bar + Stacked area ────────────────────────────── */}
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold">Layout Variants</h2>
+              <p className="text-sm text-muted-foreground">
+                Horizontal bar for ranked lists, stacked area for part-to-whole over time.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Horizontal bar */}
+              <Card>
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="text-sm font-semibold">Revenue by Channel</CardTitle>
+                  <CardDescription className="text-xs mt-0.5">
+                    Horizontal layout — ideal for ranked comparisons
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <BarChart
+                    data={[
+                      { channel: "Direct", revenue: 48200, profit: 19400 },
+                      { channel: "Organic", revenue: 34600, profit: 13800 },
+                      { channel: "Paid", revenue: 22100, profit: 6600 },
+                      { channel: "Referral", revenue: 15300, profit: 5800 },
+                      { channel: "Social", revenue: 9400, profit: 2800 },
+                    ]}
+                    config={{
+                      revenue: { label: "Revenue", color: "var(--color-chart-1)" },
+                      profit: { label: "Profit", color: "var(--color-chart-2)" },
+                    }}
+                    bars={["revenue", "profit"]}
+                    xAxisKey="channel"
+                    layout="horizontal"
+                    showLegend
+                    height={260}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Stacked area */}
+              <Card>
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="text-sm font-semibold">Cost Composition</CardTitle>
+                  <CardDescription className="text-xs mt-0.5">
+                    Stacked area — profit vs expenses as proportion of revenue
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <AreaChart
+                    data={MONTHLY_DATA}
+                    config={{
+                      profit: { label: "Profit", color: "var(--color-chart-2)" },
+                      expenses: { label: "Expenses", color: "var(--color-chart-3)" },
+                    }}
+                    areas={["profit", "expenses"]}
+                    xAxisKey="month"
+                    stacked
+                    fillOpacity={0.7}
+                    showLegend
+                    height={260}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* ── Radar + Scatter ───────────────────────────────────────────── */}
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold">Multi-dimensional</h2>
+              <p className="text-sm text-muted-foreground">
+                Radar for holistic scoring, scatter for correlation analysis.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Radar */}
+              <Card>
+                <CardHeader className="pb-2 border-b">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <CardTitle className="text-sm font-semibold">Product Benchmarking</CardTitle>
+                      <CardDescription className="text-xs mt-0.5">
+                        Our product vs industry benchmark across 6 dimensions
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <Switch
+                          id="radar-line"
+                          checked={radarLineOnly}
+                          onCheckedChange={setRadarLineOnly}
+                          className="scale-75"
+                        />
+                        <span className="text-xs text-muted-foreground">Lines only</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground shrink-0">Fill</span>
+                    <Slider
+                      min={0}
+                      max={60}
+                      step={5}
+                      value={[radarFillOpacity]}
+                      onValueChange={([v]) => setRadarFillOpacity(v)}
+                      className="w-28"
+                      disabled={radarLineOnly}
+                    />
+                    <span className="text-xs text-muted-foreground w-6">{radarFillOpacity}%</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <RadarChart
+                    data={RADAR_DATA}
+                    config={RADAR_CONFIG}
+                    radars={["product", "benchmark"]}
+                    angleKey="subject"
+                    lineOnly={radarLineOnly}
+                    fillOpacity={radarFillOpacity / 100}
+                    showLegend
+                    height={300}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Scatter */}
+              <Card>
+                <CardHeader className="pb-2 border-b">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <CardTitle className="text-sm font-semibold">Performance Correlation</CardTitle>
+                      <CardDescription className="text-xs mt-0.5">
+                        Effort vs output across three teams over 8 sprints
+                      </CardDescription>
+                    </div>
+                    <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
+                      <Switch
+                        id="scatter-legend"
+                        checked={scatterLegend}
+                        onCheckedChange={setScatterLegend}
+                        className="scale-75"
+                      />
+                      <span className="text-xs text-muted-foreground">Legend</span>
+                    </label>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <ScatterChart
+                    series={SCATTER_SERIES}
+                    config={SCATTER_CONFIG}
+                    xAxisLabel="Effort (pts)"
+                    yAxisLabel="Velocity"
+                    showLegend={scatterLegend}
+                    height={300}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* ── Composed ─────────────────────────────────────────────────── */}
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold">Composed Chart</h2>
+              <p className="text-sm text-muted-foreground">
+                Mix area, bars, and a reference line in a single canvas.
+              </p>
+            </div>
+
+            <Card>
+              <CardHeader className="pb-2 border-b">
+                <CardTitle className="text-sm font-semibold">Quarterly Performance vs Target</CardTitle>
+                <CardDescription className="text-xs mt-0.5">
+                  Revenue (area) · Profit (bars) · Target (line) — Q1 2023 → Q4 2024
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <ComposedChart
+                  data={COMPOSED_DATA}
+                  config={COMPOSED_CONFIG}
+                  elements={[
+                    { type: "area", dataKey: "revenue", fillOpacity: 0.15, curveType: "monotone" },
+                    { type: "bar", dataKey: "profit", radius: 3 },
+                    { type: "line", dataKey: "target", curveType: "linear", showDots: true, strokeWidth: 2 },
+                  ]}
+                  xAxisKey="period"
+                  showLegend
+                  height={340}
+                />
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* ── Compact sparklines ───────────────────────────────────────── */}
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold">Compact Sparklines</h2>
+              <p className="text-sm text-muted-foreground">
+                Small embedded charts — no axes, no grid, no legend.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              {(
+                [
+                  { key: "revenue", label: "Revenue trend", color: "var(--color-chart-1)" },
+                  { key: "profit", label: "Profit trend", color: "var(--color-chart-2)" },
+                  { key: "expenses", label: "Expense trend", color: "var(--color-chart-3)" },
+                ] as const
+              ).map(({ key, label, color }) => {
+                const last = MONTHLY_DATA[MONTHLY_DATA.length - 1][key]
+                const prev = MONTHLY_DATA[MONTHLY_DATA.length - 2][key]
+                const up = last >= prev
+                return (
+                  <Card key={key} className="overflow-hidden">
+                    <CardContent className="pt-4 pb-0">
+                      <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
+                      <p className="text-xl font-bold">{formatK(last)}</p>
+                      <Badge
+                        variant={up ? "secondary" : "outline"}
+                        className="text-[10px] mt-1 mb-3"
+                      >
+                        {pct(last, prev).change}
+                      </Badge>
+                    </CardContent>
+                    <LineChart
+                      data={MONTHLY_DATA}
+                      config={{ [key]: { label, color } }}
+                      lines={[key]}
+                      xAxisKey="month"
+                      height={72}
+                      showGrid={false}
+                      showTooltip={false}
+                      showLegend={false}
+                      curveType="monotone"
+                    />
+                  </Card>
+                )
+              })}
+            </div>
+          </section>
+        </TabsContent>
+
+        {/* ── Markdown Tab ──────────────────────────────────────────────────── */}
         <TabsContent value="markdown" className="space-y-8">
 
-          {/* 1. Interactive Editor */}
           <section className="space-y-4">
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-semibold">MarkdownEditor</h2>
@@ -250,7 +984,6 @@ export default function ReUIDemoPage() {
               </p>
             </div>
 
-            {/* Controls */}
             <div className="flex flex-wrap items-center gap-4 rounded-lg border bg-muted/40 px-4 py-3">
               <div className="flex items-center gap-2">
                 <Label htmlFor="mode-select" className="text-sm font-medium shrink-0">
@@ -337,17 +1070,13 @@ export default function ReUIDemoPage() {
 
           <Separator />
 
-          {/* 2. Preview-only viewer */}
           <section className="space-y-4">
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-semibold">MarkdownPreview</h2>
               <p className="text-sm text-muted-foreground">
-                Read-only viewer — renders markdown with no editor chrome. Pass the same
-                <code className="mx-1 rounded bg-muted px-1 py-0.5 text-xs font-mono">plugins</code>
-                prop as the editor for consistent output.
+                Read-only viewer — renders markdown with no editor chrome.
               </p>
             </div>
-
             <div className="rounded-lg border p-6">
               <MarkdownPreview value={PREVIEW_ONLY_MARKDOWN} />
             </div>
@@ -355,13 +1084,11 @@ export default function ReUIDemoPage() {
 
           <Separator />
 
-          {/* 3. Live editor + detached preview side-by-side */}
           <section className="space-y-4">
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-semibold">Editor + Detached Preview</h2>
               <p className="text-sm text-muted-foreground">
-                Compose the editor and preview independently. Useful for custom layouts — e.g. a
-                dialog editor with a full-page preview panel.
+                Compose the editor and preview independently.
               </p>
             </div>
 
@@ -390,12 +1117,9 @@ export default function ReUIDemoPage() {
 
           <Separator />
 
-          {/* 4. States */}
           <section className="space-y-4">
             <h2 className="text-xl font-semibold">States</h2>
-
             <div className="grid gap-6 lg:grid-cols-2">
-              {/* Disabled */}
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Disabled</CardTitle>
@@ -414,13 +1138,11 @@ export default function ReUIDemoPage() {
                 </CardContent>
               </Card>
 
-              {/* maxLength */}
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Character Limit</CardTitle>
                   <CardDescription>
-                    <code className="font-mono text-xs">maxLength=280</code> — useful for comments
-                    or short-form content. ByteMD shows the counter in the status bar.
+                    <code className="font-mono text-xs">maxLength=280</code> — useful for comments or short-form content.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -439,14 +1161,11 @@ export default function ReUIDemoPage() {
 
           <Separator />
 
-          {/* 5. Dialog editor */}
           <section className="space-y-4">
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-semibold">Editor in a Dialog</h2>
               <p className="text-sm text-muted-foreground">
-                Mount the editor inside any overlay. Uses{" "}
-                <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">height="calc(60vh - 6rem)"</code>
-                {" "}for flexible sizing.
+                Mount the editor inside any overlay.
               </p>
             </div>
 
@@ -482,41 +1201,9 @@ export default function ReUIDemoPage() {
               </DialogContent>
             </Dialog>
           </section>
-
-          <Separator />
-
-          {/* 6. Upload images demo */}
-          <section className="space-y-4">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-xl font-semibold">Custom Image Upload</h2>
-              <p className="text-sm text-muted-foreground">
-                Pass <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">uploadImages</code> to
-                handle image drag-and-drop or the toolbar upload button. The handler receives{" "}
-                <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">File[]</code> and
-                returns <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">{"{ title, url, alt? }[]"}</code>.
-              </p>
-            </div>
-
-            <MarkdownEditor
-              value="Drop an image here or click the image button in the toolbar :camera:"
-              onChange={() => undefined}
-              height={200}
-              mode="tab"
-              uploadImages={async (files) => {
-                // Simulate upload — in production, call your UploadThing/S3 handler
-                await new Promise((r) => setTimeout(r, 600))
-                toast.success(`Uploaded ${files.length} file(s)`)
-                return files.map((f) => ({
-                  title: f.name,
-                  url: URL.createObjectURL(f),
-                  alt: f.name,
-                }))
-              }}
-            />
-          </section>
         </TabsContent>
 
-        {/* ── Original tabs (unchanged) ──────────────────────────────────── */}
+        {/* ── Buttons Tab ───────────────────────────────────────────────────── */}
         <TabsContent value="buttons" className="space-y-8">
           <section className="space-y-4">
             <h2 className="text-xl font-semibold">Buttons</h2>
@@ -544,6 +1231,7 @@ export default function ReUIDemoPage() {
           </section>
         </TabsContent>
 
+        {/* ── Cards Tab ─────────────────────────────────────────────────────── */}
         <TabsContent value="cards" className="space-y-8">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
@@ -608,6 +1296,7 @@ export default function ReUIDemoPage() {
           </section>
         </TabsContent>
 
+        {/* ── Data Tab ──────────────────────────────────────────────────────── */}
         <TabsContent value="data" className="space-y-8">
           <section className="space-y-4">
             <h2 className="text-xl font-semibold">Table</h2>
@@ -652,6 +1341,7 @@ export default function ReUIDemoPage() {
           </section>
         </TabsContent>
 
+        {/* ── Feedback Tab ──────────────────────────────────────────────────── */}
         <TabsContent value="feedback" className="space-y-8">
           <div className="grid gap-8 md:grid-cols-2">
             <section className="space-y-4">
@@ -671,7 +1361,7 @@ export default function ReUIDemoPage() {
                     <div className="grid gap-4 py-4">
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="dialog-name" className="text-right">Name</Label>
-                        <Input id="dialog-name" value="Pedro Duarte" className="col-span-3" />
+                        <Input id="dialog-name" defaultValue="Pedro Duarte" className="col-span-3" />
                       </div>
                     </div>
                     <DialogFooter>
@@ -688,8 +1378,7 @@ export default function ReUIDemoPage() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your
-                        account and remove your data from our servers.
+                        This action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -748,6 +1437,7 @@ export default function ReUIDemoPage() {
           </div>
         </TabsContent>
 
+        {/* ── Forms Tab ─────────────────────────────────────────────────────── */}
         <TabsContent value="forms" className="space-y-8">
           <div className="grid gap-8 md:grid-cols-2">
             <section className="space-y-4">
