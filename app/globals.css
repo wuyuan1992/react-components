@@ -227,6 +227,121 @@
   --selection-foreground: oklch(0.205 0 0);
 }
 
+/* ── Per-style color overrides ───────────────────────────────────────────────
+   These override the neutral :root defaults to give each style a distinct
+   primary color family. Applied when the style-* class is on <html>.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* vega — violet/purple */
+.style-vega {
+  --primary: oklch(0.52 0.24 290);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.52 0.24 290);
+  --chart-1: oklch(0.52 0.24 290);
+  --chart-2: oklch(0.62 0.2 270);
+  --chart-3: oklch(0.72 0.16 250);
+  --chart-4: oklch(0.55 0.22 310);
+  --chart-5: oklch(0.45 0.26 280);
+}
+.style-vega.dark {
+  --primary: oklch(0.74 0.18 290);
+  --primary-foreground: oklch(0.15 0 0);
+  --ring: oklch(0.74 0.18 290);
+  --chart-1: oklch(0.74 0.18 290);
+  --chart-2: oklch(0.63 0.2 270);
+  --chart-3: oklch(0.54 0.22 310);
+  --chart-4: oklch(0.8 0.13 260);
+  --chart-5: oklch(0.59 0.24 300);
+}
+
+/* nova — orange/amber */
+.style-nova {
+  --primary: oklch(0.6 0.22 50);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.6 0.22 50);
+  --chart-1: oklch(0.6 0.22 50);
+  --chart-2: oklch(0.7 0.18 70);
+  --chart-3: oklch(0.52 0.24 35);
+  --chart-4: oklch(0.77 0.16 88);
+  --chart-5: oklch(0.56 0.26 25);
+}
+.style-nova.dark {
+  --primary: oklch(0.76 0.18 50);
+  --primary-foreground: oklch(0.15 0 0);
+  --ring: oklch(0.76 0.18 50);
+  --chart-1: oklch(0.76 0.18 50);
+  --chart-2: oklch(0.66 0.2 70);
+  --chart-3: oklch(0.56 0.22 35);
+  --chart-4: oklch(0.82 0.14 88);
+  --chart-5: oklch(0.62 0.22 25);
+}
+
+/* lyra — blue */
+.style-lyra {
+  --primary: oklch(0.52 0.22 258);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.52 0.22 258);
+  --chart-1: oklch(0.52 0.22 258);
+  --chart-2: oklch(0.62 0.18 240);
+  --chart-3: oklch(0.45 0.24 275);
+  --chart-4: oklch(0.7 0.14 220);
+  --chart-5: oklch(0.58 0.2 265);
+}
+.style-lyra.dark {
+  --primary: oklch(0.72 0.18 258);
+  --primary-foreground: oklch(0.15 0 0);
+  --ring: oklch(0.72 0.18 258);
+  --chart-1: oklch(0.72 0.18 258);
+  --chart-2: oklch(0.62 0.2 240);
+  --chart-3: oklch(0.55 0.22 275);
+  --chart-4: oklch(0.8 0.14 220);
+  --chart-5: oklch(0.65 0.2 265);
+}
+
+/* maia — rose/pink */
+.style-maia {
+  --primary: oklch(0.55 0.24 10);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.55 0.24 10);
+  --chart-1: oklch(0.55 0.24 10);
+  --chart-2: oklch(0.65 0.2 350);
+  --chart-3: oklch(0.48 0.26 25);
+  --chart-4: oklch(0.72 0.16 340);
+  --chart-5: oklch(0.6 0.22 0);
+}
+.style-maia.dark {
+  --primary: oklch(0.76 0.2 10);
+  --primary-foreground: oklch(0.15 0 0);
+  --ring: oklch(0.76 0.2 10);
+  --chart-1: oklch(0.76 0.2 10);
+  --chart-2: oklch(0.66 0.22 350);
+  --chart-3: oklch(0.56 0.24 25);
+  --chart-4: oklch(0.82 0.14 340);
+  --chart-5: oklch(0.62 0.24 0);
+}
+
+/* mira — emerald/teal */
+.style-mira {
+  --primary: oklch(0.55 0.18 160);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.55 0.18 160);
+  --chart-1: oklch(0.55 0.18 160);
+  --chart-2: oklch(0.65 0.14 180);
+  --chart-3: oklch(0.48 0.2 145);
+  --chart-4: oklch(0.72 0.12 195);
+  --chart-5: oklch(0.6 0.16 170);
+}
+.style-mira.dark {
+  --primary: oklch(0.72 0.16 160);
+  --primary-foreground: oklch(0.15 0 0);
+  --ring: oklch(0.72 0.16 160);
+  --chart-1: oklch(0.72 0.16 160);
+  --chart-2: oklch(0.62 0.18 180);
+  --chart-3: oklch(0.55 0.2 145);
+  --chart-4: oklch(0.8 0.12 195);
+  --chart-5: oklch(0.65 0.18 170);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

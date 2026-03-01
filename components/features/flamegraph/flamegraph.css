@@ -1,0 +1,60 @@
+/* Flame Graph 自定义样式 - 使用设计系统变量 */
+
+.flamegraph-container {
+  --flamegraph-bg: var(--color-background);
+  --flamegraph-text: var(--color-foreground);
+  --flamegraph-border: var(--color-border);
+}
+
+.flamegraph-container .d3-flame-graph {
+  font-family: inherit;
+  background-color: var(--flamegraph-bg);
+}
+
+.flamegraph-container .d3-flame-graph .frame {
+  stroke: var(--flamegraph-border);
+  stroke-width: 0.5px;
+}
+
+.flamegraph-container .d3-flame-graph .frame:hover {
+  stroke: var(--color-primary);
+  stroke-width: 1px;
+  cursor: pointer;
+}
+
+.flamegraph-container .d3-flame-graph-tip {
+  background-color: var(--flamegraph-bg);
+  border: 1px solid var(--flamegraph-border);
+  border-radius: 6px;
+  color: var(--flamegraph-text);
+  font-size: 12px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.flamegraph-container .d3-flame-graph-tip::after {
+  border-top-color: var(--flamegraph-border);
+}
+
+.flamegraph-container .flamegraph-label {
+  fill: var(--flamegraph-text);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+/* 颜色主题 */
+.flamegraph-container .frame {
+  fill: var(--color-primary);
+  opacity: 0.85;
+}
+
+.flamegraph-container .frame:hover {
+  opacity: 1;
+}
+
+/* 深度层级颜色 */
+.flamegraph-container .depth-0 { fill: var(--color-chart-1); }
+.flamegraph-container .depth-1 { fill: var(--color-chart-2); }
+.flamegraph-container .depth-2 { fill: var(--color-chart-3); }
+.flamegraph-container .depth-3 { fill: var(--color-chart-4); }
+.flamegraph-container .depth-4 { fill: var(--color-chart-5); }
