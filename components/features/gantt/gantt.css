@@ -1,0 +1,69 @@
+/* Gantt Chart 自定义样式 - 使用设计系统变量 */
+
+.gantt-container {
+  --gantt-bar-color: var(--color-primary);
+  --gantt-bar-progress-color: var(--color-primary);
+  --gantt-text-color: var(--color-foreground);
+  --gantt-grid-color: var(--color-border);
+  --gantt-bg-color: var(--color-background);
+  --gantt-weekend-color: var(--color-muted);
+}
+
+.gantt-container .gantt {
+  font-family: inherit;
+}
+
+.gantt-container .grid-header {
+  fill: var(--gantt-bg-color);
+  stroke: var(--gantt-grid-color);
+}
+
+.gantt-container .grid-row {
+  fill: var(--gantt-bg-color);
+}
+
+.gantt-container .row-line {
+  stroke: var(--gantt-grid-color);
+}
+
+.gantt-container .tick {
+  stroke: var(--gantt-grid-color);
+}
+
+.gantt-container .bar {
+  fill: var(--gantt-bar-color);
+  stroke: none;
+  border-radius: 4px;
+}
+
+.gantt-container .bar-progress {
+  fill: var(--gantt-bar-progress-color);
+  border-radius: 4px 0 0 4px;
+}
+
+.gantt-container .bar-label {
+  fill: var(--gantt-text-color);
+  font-size: 12px;
+}
+
+.gantt-container .bar-wrapper .bar {
+  cursor: pointer;
+}
+
+.gantt-container .popup-wrapper {
+  background-color: var(--gantt-bg-color);
+  border: 1px solid var(--gantt-grid-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.gantt-container .popup-title {
+  color: var(--gantt-text-color);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.gantt-container .popup-subtitle {
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+}
