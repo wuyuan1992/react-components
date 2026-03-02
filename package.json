@@ -146,7 +146,7 @@
     "@testing-library/react": "latest",
     "@testing-library/user-event": "latest",
     "@types/dagre": "^0.7.54",
-    "@types/node": "^20",
+    "@types/node": "^25",
     "@types/pg": "^8.16.0",
     "@types/pino": "latest",
     "@types/react": "^18",
