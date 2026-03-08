@@ -1,0 +1,107 @@
+/* GridLayout Custom Styles */
+.react-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+  min-height: 100px;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top, width, height;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform, width, height;
+}
+
+.react-grid-item.resizing {
+  z-index: 1;
+  will-change: width, height;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 3;
+  will-change: transform;
+}
+
+.react-grid-item.dropping {
+  visibility: hidden;
+}
+
+/* Resize Handle */
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.react-grid-item:hover > .react-resizable-handle {
+  opacity: 1;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid hsl(var(--muted-foreground) / 0.5);
+  border-bottom: 2px solid hsl(var(--muted-foreground) / 0.5);
+  border-radius: 0 0 2px 0;
+  transition: border-color 150ms ease;
+}
+
+.react-grid-item:hover > .react-resizable-handle::after {
+  border-right-color: hsl(var(--primary) / 0.7);
+  border-bottom-color: hsl(var(--primary) / 0.7);
+}
+
+/* Corner resize handles */
+.react-resizable-handle {
+  display: block;
+}
+
+.react-resizable-handle-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+/* Placeholder style when dragging */
+.react-grid-placeholder {
+  border-radius: 0.5rem;
+  background-color: hsl(var(--primary) / 0.1);
+  border: 2px dashed hsl(var(--primary) / 0.4);
+  transition-duration: 100ms;
+  z-index: 2;
+  user-select: none;
+}
+
+/* Dark mode adjustments */
+.dark .react-grid-placeholder {
+  background-color: hsl(var(--primary) / 0.15);
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+/* Focus styles for accessibility */
+.react-grid-item:focus-within {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .react-grid-layout,
+  .react-grid-item,
+  .react-grid-item.cssTransforms {
+    transition: none;
+  }
+
+  .react-grid-placeholder {
+    transition: none;
+  }
+}

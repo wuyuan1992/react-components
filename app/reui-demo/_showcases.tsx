@@ -130,6 +130,7 @@ import { GanttWithToolbar, type GanttTask } from "@/components/features/gantt"
 import { FlameGraph, type FlameGraphNode, type FlameGraphRef } from "@/components/features/flamegraph"
 import { Terminal as TerminalEmulator, type TerminalRef } from "@/components/features/terminal"
 import { SortableList, KanbanBoard, type KanbanColumn } from "@/components/features/dnd"
+import { GridLayoutComponent, useGridLayout } from "@/components/features/grid-layout"
 import type { UniqueIdentifier } from "@dnd-kit/core"
 import { z } from "zod"
 import type { ChartConfig } from "@/components/ui/chart"
@@ -140,6 +141,7 @@ import {
   AlertTriangle,
   CheckCircle,
   ChevronRight,
+  GripVertical,
   Info,
   Mail,
   Plus,
@@ -218,6 +220,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { id: "flame-graph", label: "Flame Graph" },
       { id: "terminal", label: "Terminal" },
       { id: "dnd", label: "Drag & Drop" },
+      { id: "grid-layout", label: "Grid Layout" },
     ],
   },
   {
@@ -2306,6 +2309,126 @@ function DnDView() {
   )
 }
 
+// Grid Layout View
+function GridLayoutView() {
+  const { layout, setLayout, addItem, removeItem } = useGridLayout([
+    { i: "stats-1", x: 0, y: 0, w: 3, h: 2 },
+    { i: "stats-2", x: 3, y: 0, w: 3, h: 2 },
+    { i: "stats-3", x: 6, y: 0, w: 3, h: 2 },
+    { i: "stats-4", x: 9, y: 0, w: 3, h: 2 },
+    { i: "chart-1", x: 0, y: 2, w: 6, h: 4 },
+    { i: "chart-2", x: 6, y: 2, w: 6, h: 4 },
+    { i: "table", x: 0, y: 6, w: 12, h: 3 },
+  ])
+
+  const widgets = [
+    { id: "stats-1", title: "Total Users", value: "12,345", change: "+12%", color: "hsl(var(--chart-1))" },
+    { id: "stats-2", title: "Revenue", value: "$45,678", change: "+8%", color: "hsl(var(--chart-2))" },
+    { id: "stats-3", title: "Active Sessions", value: "892", change: "-3%", color: "hsl(var(--chart-3))" },
+    { id: "stats-4", title: "Conversion Rate", value: "4.2%", change: "+1.5%", color: "hsl(var(--chart-4))" },
+    { id: "chart-1", title: "Traffic Overview", value: "", change: "", color: "hsl(var(--chart-5))" },
+    { id: "chart-2", title: "Revenue Trend", value: "", change: "", color: "hsl(var(--primary))" },
+    { id: "table", title: "Recent Transactions", value: "", change: "", color: "hsl(var(--muted))" },
+  ]
+
+  return (
+    <div>
+      <PageHeader title="Grid Layout" description="Draggable and resizable grid layout system for building customizable dashboards." />
+      <ExampleSection title="Interactive Dashboard">
+        <div className="min-h-[600px]">
+          <GridLayoutComponent
+            layout={layout}
+            onLayoutChange={setLayout}
+            responsive
+            rowHeight={60}
+            gap={[12, 12]}
+          >
+            {widgets.map((widget) => (
+              <div key={widget.id} className="h-full">
+                <div className="h-full rounded-lg border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: widget.color }} />
+                      <span className="font-medium text-sm">{widget.title}</span>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 cursor-grab active:cursor-grabbing">
+                      <GripVertical className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </div>
+                  {widget.value && (
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold">{widget.value}</span>
+                      <Badge variant={widget.change.startsWith("+") ? "default" : "destructive"} className="text-xs">
+                        {widget.change}
+                      </Badge>
+                    </div>
+                  )}
+                  {!widget.value && (
+                    <div className="flex items-center justify-center h-[calc(100%-2rem)] text-muted-foreground text-sm">
+                      Chart placeholder
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </GridLayoutComponent>
+        </div>
+        <CodeBlock
+          code={`import { GridLayoutComponent, useGridLayout } from "@/components/features/grid-layout"
+
+const { layout, setLayout } = useGridLayout([
+  { i: "widget-1", x: 0, y: 0, w: 4, h: 2 },
+  { i: "widget-2", x: 4, y: 0, w: 4, h: 2 },
+])
+
+<GridLayoutComponent
+  layout={layout}
+  onLayoutChange={setLayout}
+  responsive
+  rowHeight={80}
+>
+  <div key="widget-1">Widget 1</div>
+  <div key="widget-2">Widget 2</div>
+</GridLayoutComponent>`}
+        />
+      </ExampleSection>
+      <ExampleSection title="Actions">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              const newId = `widget-${Date.now()}`
+              addItem({
+                i: newId,
+                x: (layout.length * 2) % 12,
+                y: Math.floor(layout.length / 6) * 2,
+                w: 2,
+                h: 2,
+              })
+            }}
+          >
+            Add Widget
+          </Button>
+          <Button variant="outline" onClick={() => removeItem(layout[layout.length - 1]?.i || "")}>
+            Remove Last Widget
+          </Button>
+          <Button variant="secondary" onClick={() => setLayout([
+            { i: "stats-1", x: 0, y: 0, w: 3, h: 2 },
+            { i: "stats-2", x: 3, y: 0, w: 3, h: 2 },
+            { i: "stats-3", x: 6, y: 0, w: 3, h: 2 },
+            { i: "stats-4", x: 9, y: 0, w: 3, h: 2 },
+            { i: "chart-1", x: 0, y: 2, w: 6, h: 4 },
+            { i: "chart-2", x: 6, y: 2, w: 6, h: 4 },
+            { i: "table", x: 0, y: 6, w: 12, h: 3 },
+          ])}>
+            Reset Layout
+          </Button>
+        </div>
+      </ExampleSection>
+    </div>
+  )
+}
+
 // Views Registry
 export const VIEWS: Record<string, () => JSX.Element> = {
   button: ButtonView,
@@ -2355,4 +2478,5 @@ export const VIEWS: Record<string, () => JSX.Element> = {
   "flame-graph": FlameGraphDemo,
   terminal: TerminalView,
   dnd: DnDView,
+  "grid-layout": GridLayoutView,
 }
