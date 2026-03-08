@@ -5,6 +5,7 @@ import type { TreeProps as RcTreeProps } from "rc-tree"
 import RcTree from "rc-tree"
 import { cn } from "@/lib/utils"
 import { ChevronRight, ChevronDown, File, Folder, FolderOpen, Loader2 } from "lucide-react"
+import "./tree.css"
 
 // Basic tree node structure
 export interface TreeNode {
@@ -27,6 +28,9 @@ export interface TreeNode {
   data?: unknown
 }
 
+export type TreeSize = "sm" | "md" | "lg"
+export type TreeLayout = "default" | "compact" | "panel" | "sidebar"
+
 export interface TreeProps {
   /** Tree data */
   treeData: TreeNode[]
@@ -41,7 +45,17 @@ export interface TreeProps {
   /** Custom className */
   className?: string
   /** Size variant */
-  size?: "sm" | "md" | "lg"
+  size?: TreeSize
+  /** Responsive size - overrides size at different breakpoints */
+  responsiveSize?: {
+    base?: TreeSize
+    sm?: TreeSize
+    md?: TreeSize
+    lg?: TreeSize
+    xl?: TreeSize
+  }
+  /** Layout variant */
+  layout?: TreeLayout
   /** Show indent guides */
   showIndentGuides?: boolean
   /** Enable selection */
@@ -76,7 +90,7 @@ function SwitcherIcon({ expanded, isLeaf, showFileIcons, showFolderIcons }: { ex
   }
 
   if (showFolderIcons) {
-    return expanded ? <FolderOpen className="size-4 text-warning" /> : <Folder className="size-4 text-warning" />
+    return expanded ? <FolderOpen className="size-4 text-muted-foreground" /> : <Folder className="size-4 text-muted-foreground" />
   }
 
   return expanded ? <ChevronDown className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />
@@ -90,6 +104,8 @@ export function Tree({
   renderNode,
   className,
   size = "md",
+  responsiveSize,
+  layout = "default",
   showIndentGuides = false,
   selectable = true,
   checkable = false,
@@ -102,11 +118,29 @@ export function Tree({
   onCheck,
   disabled,
 }: TreeProps) {
-  const sizeClasses = {
+  const sizeClasses: Record<TreeSize, string> = {
     sm: "text-xs",
     md: "text-sm",
     lg: "text-base",
   }
+
+  const layoutClasses: Record<TreeLayout, string> = {
+    default: "",
+    compact: "[--tree-node-height:24px] [--tree-node-padding:2px_6px] [--tree-indent:16px]",
+    panel: "border border-border/50 rounded-lg p-3 bg-muted/30",
+    sidebar: "border-r border-border bg-muted/20 p-2",
+  }
+
+  // Build responsive size classes
+  const responsiveSizeClasses = responsiveSize
+    ? Object.entries(responsiveSize)
+        .filter(([, s]) => s)
+        .map(([breakpoint, s]) => {
+          const prefix = breakpoint === "base" ? "" : `${breakpoint}:`
+          return `${prefix}${sizeClasses[s as TreeSize]}`
+        })
+        .join(" ")
+    : null
 
   // Default title render with optional custom renderer
   const defaultTitleRender = (node: TreeNode): React.ReactNode => {
@@ -120,7 +154,8 @@ export function Tree({
     <div
       className={cn(
         "tree-container",
-        sizeClasses[size],
+        responsiveSizeClasses || sizeClasses[size],
+        layoutClasses[layout],
         showIndentGuides && "[&_.rc-tree-indent-unit]:border-l [&_.rc-tree-indent-unit]:border-border",
         className
       )}
@@ -162,6 +197,16 @@ export function DirectoryTree({ showHidden = false, ...props }: DirectoryTreePro
   return <Tree {...props} showFileIcons={true} showFolderIcons={true} />
 }
 
+// File Tree - sidebar-optimized layout
+export interface FileTreeProps extends Omit<TreeProps, "showFileIcons" | "showFolderIcons" | "layout"> {
+  /** Show hidden files */
+  showHidden?: boolean
+}
+
+export function FileTree({ showHidden = false, ...props }: FileTreeProps) {
+  return <Tree {...props} showFileIcons={true} showFolderIcons={true} layout="sidebar" />
+}
+
 // Tree Select Component
 export interface TreeSelectProps {
   /** Selected key(s) */
@@ -170,8 +215,6 @@ export interface TreeSelectProps {
   onChange?: (value: string | string[]) => void
   /** Tree data */
   treeData: TreeNode[]
-  /** Placeholder text */
-  placeholder?: string
   /** Is multiple select */
   multiple?: boolean
   /** Is disabled */
@@ -182,7 +225,7 @@ export interface TreeSelectProps {
   className?: string
 }
 
-export function TreeSelect({ value, onChange, treeData, placeholder = "Select...", multiple = false, disabled = false, loading = false, className }: TreeSelectProps) {
+export function TreeSelect({ value, onChange, treeData, multiple = false, disabled = false, loading = false, className }: TreeSelectProps) {
   const selectedKeys = useMemo(() => {
     if (!value) return []
     return Array.isArray(value) ? value : [value]
@@ -205,7 +248,7 @@ export function TreeSelect({ value, onChange, treeData, placeholder = "Select...
         disabled={disabled}
         loading={loading}
         size="sm"
-        className="border rounded-md p-2"
+        className="border border-border/50 rounded-md p-2 bg-muted/30"
       />
     </div>
   )
@@ -228,12 +271,28 @@ export interface CheckboxTreeProps {
   /** Custom className */
   className?: string
   /** Size variant */
-  size?: "sm" | "md" | "lg"
+  size?: TreeSize
+  /** Responsive size */
+  responsiveSize?: TreeProps["responsiveSize"]
+  /** Layout variant */
+  layout?: TreeLayout
   /** Disabled */
   disabled?: boolean
 }
 
-export function CheckboxTree({ checkedKeys = [], onCheck, checkStrictly = false, treeData, expandedKeys, onExpand, className, size, disabled }: CheckboxTreeProps) {
+export function CheckboxTree({
+  checkedKeys = [],
+  onCheck,
+  checkStrictly = false,
+  treeData,
+  expandedKeys,
+  onExpand,
+  className,
+  size,
+  responsiveSize,
+  layout,
+  disabled,
+}: CheckboxTreeProps) {
   const handleCheck = (keys: React.Key[] | { checked: React.Key[]; halfChecked: React.Key[] }) => {
     if (checkStrictly && !Array.isArray(keys)) {
       onCheck?.(keys.checked as string[], { checked: true, node: {} as TreeNode, checkedNodes: [] })
@@ -252,6 +311,8 @@ export function CheckboxTree({ checkedKeys = [], onCheck, checkStrictly = false,
       onExpand={onExpand}
       className={className}
       size={size}
+      responsiveSize={responsiveSize}
+      layout={layout}
       disabled={disabled}
     />
   )

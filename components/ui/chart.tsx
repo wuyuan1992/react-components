@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
-import type { TooltipProps } from "recharts"
+import type { TooltipPayloadEntry, LegendPayload } from "recharts"
 
 import { cn } from "@/lib/utils"
 
@@ -121,19 +121,22 @@ function ChartTooltipContent({
   labelKey,
 }: React.ComponentProps<"div"> & {
   active?: boolean
-  payload?: any[]
+  payload?: TooltipPayloadEntry<number | string, string>[]
   indicator?: "line" | "dot" | "dashed"
   hideLabel?: boolean
   hideIndicator?: boolean
-  label?: any
-  labelFormatter?: (label: any, payload: any[]) => React.ReactNode
+  label?: string | number
+  labelFormatter?: (
+    label: React.ReactNode,
+    payload: TooltipPayloadEntry<number | string, string>[]
+  ) => React.ReactNode
   labelClassName?: string
   formatter?: (
-    value: any,
-    name: any,
-    item: any,
-    index: any,
-    payload: any
+    value: number | string | undefined,
+    name: string | number | undefined,
+    item: TooltipPayloadEntry<number | string, string>,
+    index: number,
+    payload: Record<string, unknown> | undefined
   ) => React.ReactNode
   color?: string
   nameKey?: string
@@ -193,22 +196,28 @@ function ChartTooltipContent({
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
         {payload
-          .filter((item: any) => item.type !== "none")
-          .map((item: any, index: number) => {
+          .filter((item: TooltipPayloadEntry<number | string, string>) => item.type !== "none")
+          .map((item: TooltipPayloadEntry<number | string, string>, index: number) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
-            const indicatorColor = color || item.payload.fill || item.color
+            const indicatorColor = color || (item.payload?.fill as string | undefined) || item.color
 
             return (
               <div
-                key={item.dataKey}
+                key={typeof item.dataKey === "function" ? index : item.dataKey}
                 className={cn(
                   "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
                   indicator === "dot" && "items-center"
                 )}
               >
                 {formatter && item?.value !== undefined && item.name ? (
-                  formatter(item.value, item.name, item, index, item.payload)
+                  formatter(
+                    item.value as number | string | undefined,
+                    item.name as string | number | undefined,
+                    item,
+                    index,
+                    item.payload as Record<string, unknown> | undefined
+                  )
                 ) : (
                   <>
                     {itemConfig?.icon ? (
@@ -273,7 +282,7 @@ function ChartLegendContent({
   nameKey,
 }: React.ComponentProps<"div"> & {
   hideIcon?: boolean
-  payload?: any[]
+  payload?: LegendPayload[]
   verticalAlign?: "top" | "bottom"
   nameKey?: string
 }) {
@@ -292,9 +301,9 @@ function ChartLegendContent({
       )}
     >
       {payload
-        .filter((item: any) => item.type !== "none")
-        .map((item: any) => {
-          const key = `${nameKey || item.dataKey || "value"}`
+        .filter((item: LegendPayload) => item.type !== "none")
+        .map((item: LegendPayload) => {
+          const key = `${nameKey || (typeof item.dataKey === "function" ? "" : item.dataKey) || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
 
           return (

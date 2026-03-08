@@ -3,7 +3,10 @@
 import { memo } from "react"
 import { Handle, Position, type NodeProps, type Node } from "@xyflow/react"
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
+import { Badge, type badgeVariants } from "@/components/ui/badge"
+import type { VariantProps } from "class-variance-authority"
+
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>
 import {
   Play,
   Square,
@@ -40,7 +43,7 @@ interface BaseNodeProps {
   label: string
   description?: string
   badge?: string
-  badgeVariant?: "default" | "secondary" | "destructive" | "outline"
+  badgeVariant?: BadgeVariant
   handles?: {
     target?: boolean | Position
     source?: boolean | Position
@@ -342,12 +345,12 @@ export interface APINodeData {
 }
 export const APINode = memo(function APINode(props: NodeProps) {
   const data = getNodeData<APINodeData>(props.data)
-  const methodColors = {
-    GET: "bg-success/10 text-success border-success/30",
-    POST: "bg-primary/10 text-primary border-primary/30",
-    PUT: "bg-warning/10 text-warning border-warning/30",
-    DELETE: "bg-destructive/10 text-destructive border-destructive/30",
-    PATCH: "bg-info/10 text-info border-info/30",
+  const methodVariants: Record<Required<APINodeData>["method"], BadgeVariant> = {
+    GET: "success",
+    POST: "default",
+    PUT: "warning",
+    DELETE: "destructive",
+    PATCH: "info",
   }
 
   return (
@@ -360,7 +363,7 @@ export const APINode = memo(function APINode(props: NodeProps) {
       handles={{ target: Position.Top, source: Position.Bottom }}
     >
       {data.method && (
-        <Badge variant="outline" className={cn("mt-2 text-[10px] font-mono", methodColors[data.method])}>
+        <Badge variant={methodVariants[data.method]} size="xs" className="mt-2 font-mono">
           {data.method}
         </Badge>
       )}

@@ -5,51 +5,65 @@ import * as d3 from "d3"
 import { cn } from "@/lib/utils"
 import "./flamegraph.css"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FlameGraphChart = any
+interface D3FlameGraphChart {
+  minHeight: (value: number) => D3FlameGraphChart
+  width: (value: number) => D3FlameGraphChart
+  height: (value: number) => D3FlameGraphChart
+  title: (value: string) => D3FlameGraphChart
+  selfValue: (value: boolean) => D3FlameGraphChart
+  transitionDuration: (value: number) => D3FlameGraphChart
+  tooltip: (value: boolean) => D3FlameGraphChart
+  setZoom: (value: boolean) => D3FlameGraphChart
+  color: (fn: (d: { data: FlameGraphNode; depth: number }) => string) => D3FlameGraphChart
+  onClick: (fn: (d: { data: FlameGraphNode }) => void) => D3FlameGraphChart
+  onHover: (fn: (d: { data: FlameGraphNode } | null) => void) => D3FlameGraphChart
+  resetZoom: () => void
+}
+
+type FlameGraphChart = D3FlameGraphChart
 
 export interface FlameGraphNode {
-  /** 节点名称 */
+  /** Node label (function name, module, etc.) */
   name: string
-  /** 节点值（占用时间/样本数） */
+  /** Numeric value — time spent or sample count */
   value: number
-  /** 子节点 */
+  /** Child nodes */
   children?: FlameGraphNode[]
-  /** 额外属性 */
+  /** Additional data attached to the node */
   [key: string]: unknown
 }
 
 export interface FlameGraphRef {
-  /** 更新数据 */
+  /** Replace the chart data */
   update: (data: FlameGraphNode) => void
-  /** 重置缩放 */
+  /** Reset zoom to the root frame */
   resetZoom: () => void
-  /** 清空图表 */
+  /** Remove all chart elements */
   clear: () => void
 }
 
 export interface FlameGraphProps {
-  /** 火焰图数据 */
+  /** Flame graph data tree */
   data?: FlameGraphNode
-  /** 图表高度 */
+  /** Chart height in pixels or CSS string */
   height?: number | string
-  /** 图表宽度 */
+  /** Chart width in pixels or CSS string */
   width?: number | string
-  /** 最小帧宽度（像素） */
+  /** Minimum frame height in pixels */
   minHeight?: number
-  /** 是否显示详细信息 */
+  /** Show tooltip on hover */
   showDetails?: boolean
-  /** 是否启用缩放 */
+  /** Enable click-to-zoom */
   enableZoom?: boolean
-  /** 自定义颜色函数 */
+  /** Custom frame color function */
   colorFunction?: (d: { data: FlameGraphNode; depth: number }) => string
-  /** 点击回调 */
+  /** Called when a frame is clicked */
   onClick?: (d: { data: FlameGraphNode }) => void
-  /** 悬停回调 */
+  /** Called when a frame is hovered; null on mouse-out */
   onHover?: (d: { data: FlameGraphNode } | null) => void
-  /** 类名 */
+  /** Additional class name */
   className?: string
-  /** 标题 */
+  /** Chart title displayed above the flame graph */
   title?: string
 }
 
@@ -77,11 +91,11 @@ const FlameGraphComponent = forwardRef<FlameGraphRef, FlameGraphProps>(
     const flamegraphFnRef = useRef<(() => FlameGraphChart) | null>(null)
     const cssLoadedRef = useRef(false)
 
-    // 加载 d3-flame-graph 脚本和 CSS
+    // Load d3-flame-graph script and CSS via CDN
     useEffect(() => {
       if (typeof window === "undefined") return
 
-      // 加载 CSS（只加载一次）
+      // Load CSS once
       if (!cssLoadedRef.current) {
         const link = document.createElement("link")
         link.rel = "stylesheet"
@@ -90,9 +104,9 @@ const FlameGraphComponent = forwardRef<FlameGraphRef, FlameGraphProps>(
         cssLoadedRef.current = true
       }
 
-      // 检查是否已经加载
+      // Check if already loaded by a previous render
       if ((d3 as unknown as Record<string, unknown>).flamegraph) {
-        // @ts-expect-error d3 扩展属性
+        // @ts-expect-error d3-flame-graph extends d3 at runtime via CDN script
         flamegraphFnRef.current = d3.flamegraph
         setIsLoaded(true)
         return
@@ -102,7 +116,7 @@ const FlameGraphComponent = forwardRef<FlameGraphRef, FlameGraphProps>(
       script.src = "https://unpkg.com/d3-flame-graph@4.1.3/dist/d3-flamegraph.min.js"
       script.async = true
       script.onload = () => {
-        // @ts-expect-error d3 扩展属性
+        // @ts-expect-error d3-flame-graph extends d3 at runtime via CDN script
         flamegraphFnRef.current = d3.flamegraph
         setIsLoaded(true)
       }
@@ -112,62 +126,49 @@ const FlameGraphComponent = forwardRef<FlameGraphRef, FlameGraphProps>(
       document.head.appendChild(script)
 
       return () => {
-        // 不移除脚本，因为可能其他组件也在使用
+        // Script is kept in DOM — other component instances may still use it
       }
     }, [])
 
-    // 初始化图表
+    // Initialize chart with current props
     const initChart = useCallback(() => {
       if (!isLoaded || !containerRef.current || !flamegraphFnRef.current) return
 
-      // 清理旧图表
+      // Clear previous chart before re-initializing
       d3.select(containerRef.current).selectAll("*").remove()
 
       try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         const chart = flamegraphFnRef.current()
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         chart.minHeight(minHeight)
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         chart.width(containerRef.current.clientWidth)
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         chart.height(typeof height === "number" ? height : 400)
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         chart.title(title ?? "")
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         chart.selfValue(true)
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         chart.transitionDuration(250)
 
         if (showDetails) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           chart.tooltip(true)
         }
 
         if (enableZoom) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           chart.setZoom(true)
         }
 
         if (colorFunction) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           chart.color(colorFunction)
         }
 
         if (onClick) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           chart.onClick(onClick)
         }
 
         if (onHover) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           chart.onHover(onHover)
         }
 
         chartRef.current = chart
 
         if (data) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           d3.select(containerRef.current).datum(data).call(chart as unknown as (...args: unknown[]) => void)
         }
       } catch (err) {
@@ -181,9 +182,7 @@ const FlameGraphComponent = forwardRef<FlameGraphRef, FlameGraphProps>(
 
       const handleResize = () => {
         if (containerRef.current && chartRef.current) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           chartRef.current.width(containerRef.current.clientWidth)
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           d3.select(containerRef.current).call(chartRef.current as unknown as (...args: unknown[]) => void)
         }
       }
@@ -203,13 +202,11 @@ const FlameGraphComponent = forwardRef<FlameGraphRef, FlameGraphProps>(
       () => ({
         update: (newData: FlameGraphNode) => {
           if (containerRef.current && chartRef.current) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             d3.select(containerRef.current).datum(newData).call(chartRef.current as unknown as (...args: unknown[]) => void)
           }
         },
         resetZoom: () => {
           if (chartRef.current) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             chartRef.current.resetZoom()
           }
         },
@@ -224,17 +221,17 @@ const FlameGraphComponent = forwardRef<FlameGraphRef, FlameGraphProps>(
 
     return (
       <div
-        className={cn("overflow-hidden rounded-md border border-[var(--color-border)] bg-[var(--color-background)]", className)}
+        className={cn("overflow-hidden rounded-md border border-border bg-background", className)}
         style={{ height, width }}
       >
         <div ref={containerRef} className="flamegraph-container h-full w-full">
           {error && (
-            <div className="flex h-full items-center justify-center text-sm text-[var(--color-destructive)]">
+            <div className="flex h-full items-center justify-center text-sm text-destructive">
               {error}
             </div>
           )}
           {!isLoaded && !error && (
-            <div className="flex h-full items-center justify-center text-sm text-[var(--color-muted-foreground)]">
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
               Loading flame graph...
             </div>
           )}

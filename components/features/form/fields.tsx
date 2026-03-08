@@ -141,7 +141,7 @@ interface ComboboxFieldProps<TFieldValues extends FieldValues> extends BaseField
 }
 
 export const ComboboxField = forwardRef(function ComboboxField<TFieldValues extends FieldValues>(
-  { name, label, description, className, required, options, placeholder = "Select option...", searchPlaceholder = "Search...", emptyText = "No results.", disabled }: ComboboxFieldProps<TFieldValues>,
+  { name, label, description, className, required, options, placeholder = "Select an option...", searchPlaceholder = "Type to search...", emptyText = "No results found", disabled }: ComboboxFieldProps<TFieldValues>,
   _ref: React.Ref<HTMLButtonElement>
 ) {
   const { control } = useFormContext<TFieldValues>()
@@ -335,7 +335,7 @@ interface DatePickerFieldProps<TFieldValues extends FieldValues> extends BaseFie
 }
 
 export const DatePickerField = forwardRef(function DatePickerField<TFieldValues extends FieldValues>(
-  { name, label, description, className, required, placeholder = "Pick a date", disabled, formatStr = "PPP" }: DatePickerFieldProps<TFieldValues>,
+  { name, label, description, className, required, placeholder = "Choose date", disabled, formatStr = "PPP" }: DatePickerFieldProps<TFieldValues>,
   _ref: React.Ref<HTMLButtonElement>
 ) {
   const { control } = useFormContext<TFieldValues>()
@@ -416,7 +416,7 @@ interface TagsFieldProps<TFieldValues extends FieldValues> extends BaseFieldProp
 }
 
 export const TagsField = forwardRef(function TagsField<TFieldValues extends FieldValues>(
-  { name, label, description, className, required, placeholder = "Add tags...", disabled }: TagsFieldProps<TFieldValues>,
+  { name, label, description, className, required, placeholder = "Type and press Enter to add", disabled }: TagsFieldProps<TFieldValues>,
   _ref: React.Ref<HTMLInputElement>
 ) {
   const { control } = useFormContext<TFieldValues>()

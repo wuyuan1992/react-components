@@ -134,9 +134,13 @@ import type { UniqueIdentifier } from "@dnd-kit/core"
 import { z } from "zod"
 import type { ChartConfig } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
+import { PageHeader, ExampleSection, CodeBlock, PropTable } from "@/components/features/demo"
 import {
   AlertCircle,
+  AlertTriangle,
+  CheckCircle,
   ChevronRight,
+  Info,
   Mail,
   Plus,
   Search,
@@ -147,13 +151,6 @@ import {
 } from "lucide-react"
 
 // Types
-interface PropDef {
-  name: string
-  type: string
-  default?: string
-  description: string
-}
-
 interface NavItem {
   id: string
   label: string
@@ -163,78 +160,6 @@ interface NavSection {
   id: string
   label: string
   items: NavItem[]
-}
-
-// Helper Components
-function PageHeader({
-  title,
-  description,
-}: {
-  title: string
-  description?: string
-}) {
-  return (
-    <div className="mb-8">
-      <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-      {description && (
-        <p className="text-muted-foreground mt-1">{description}</p>
-      )}
-    </div>
-  )
-}
-
-function PropTable({ props: propsList }: { props: PropDef[] }) {
-  return (
-    <div className="my-6 rounded-lg border overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/50">
-            <TableHead className="font-semibold">Prop</TableHead>
-            <TableHead className="font-semibold">Type</TableHead>
-            <TableHead className="font-semibold">Default</TableHead>
-            <TableHead className="font-semibold">Description</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {propsList.map((prop) => (
-            <TableRow key={prop.name}>
-              <TableCell className="font-mono text-sm text-primary">
-                {prop.name}
-              </TableCell>
-              <TableCell className="font-mono text-sm">{prop.type}</TableCell>
-              <TableCell className="font-mono text-sm text-muted-foreground">
-                {prop.default || "-"}
-              </TableCell>
-              <TableCell className="text-sm">{prop.description}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  )
-}
-
-function ExampleSection({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="mb-8">
-      <h3 className="text-sm font-semibold mb-3">{title}</h3>
-      <div className="rounded-lg border p-4 bg-card">{children}</div>
-    </div>
-  )
-}
-
-function CodeBlock({ code }: { code: string }) {
-  return (
-    <pre className="text-xs bg-muted p-3 rounded-md overflow-x-auto mt-3 font-mono">
-      <code>{code}</code>
-    </pre>
-  )
 }
 
 // Navigation Data
@@ -348,20 +273,20 @@ function ButtonView() {
       </ExampleSection>
       <ExampleSection title="With Icons">
         <div className="flex flex-wrap gap-3">
-          <Button><Mail className="mr-2 size-4" />Login with Email</Button>
-          <Button variant="outline"><Search className="mr-2 size-4" />Search</Button>
-          <Button variant="destructive"><Trash className="mr-2 size-4" />Delete</Button>
+          <Button><Mail className="size-4" />Login with Email</Button>
+          <Button variant="outline"><Search className="size-4" />Search</Button>
+          <Button variant="destructive"><Trash className="size-4" />Delete</Button>
         </div>
         <CodeBlock
-          code={`<Button><Mail className="mr-2 size-4" />Login with Email</Button>
-<Button variant="outline"><Search className="mr-2 size-4" />Search</Button>`}
+          code={`<Button><Mail className="size-4" />Login with Email</Button>
+<Button variant="outline"><Search className="size-4" />Search</Button>`}
         />
       </ExampleSection>
       <ExampleSection title="States">
         <div className="flex flex-wrap gap-3">
           <Button disabled>Disabled</Button>
           <Button className="opacity-70 pointer-events-none">
-            <Spinner className="size-4 mr-2" />
+            <Spinner className="size-4" />
             Loading
           </Button>
         </div>
@@ -394,6 +319,20 @@ function BadgeView() {
           code={`<Badge>Default</Badge>
 <Badge variant="secondary">Secondary</Badge>
 <Badge variant="destructive">Destructive</Badge>`}
+        />
+      </ExampleSection>
+      <ExampleSection title="Status">
+        <div className="flex flex-wrap gap-3">
+          <Badge variant="success">Active</Badge>
+          <Badge variant="warning">Pending</Badge>
+          <Badge variant="info">In Progress</Badge>
+          <Badge variant="destructive">Failed</Badge>
+        </div>
+        <CodeBlock
+          code={`<Badge variant="success">Active</Badge>
+<Badge variant="warning">Pending</Badge>
+<Badge variant="info">In Progress</Badge>
+<Badge variant="destructive">Failed</Badge>`}
         />
       </ExampleSection>
       <PropTable
@@ -715,7 +654,22 @@ function AlertView() {
           <Alert variant="destructive">
             <AlertCircle className="size-4" />
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>Your session has expired.</AlertDescription>
+            <AlertDescription>Your session has expired. Please log in again.</AlertDescription>
+          </Alert>
+          <Alert className="border-success/40 bg-success/5 [&>svg]:text-success">
+            <CheckCircle className="size-4" />
+            <AlertTitle>Success</AlertTitle>
+            <AlertDescription>Your changes have been saved successfully.</AlertDescription>
+          </Alert>
+          <Alert className="border-warning/40 bg-warning/5 [&>svg]:text-warning-foreground">
+            <AlertTriangle className="size-4" />
+            <AlertTitle>Warning</AlertTitle>
+            <AlertDescription>This action will affect all team members. Review carefully.</AlertDescription>
+          </Alert>
+          <Alert className="border-info/40 bg-info/5 [&>svg]:text-info">
+            <Info className="size-4" />
+            <AlertTitle>Note</AlertTitle>
+            <AlertDescription>Changes take effect after the next deployment cycle.</AlertDescription>
           </Alert>
         </div>
         <CodeBlock
@@ -725,6 +679,14 @@ function AlertView() {
 </Alert>
 <Alert variant="destructive">
   <AlertTitle>Error</AlertTitle>
+</Alert>
+<Alert className="border-success/40 bg-success/5 [&>svg]:text-success">
+  <CheckCircle className="size-4" />
+  <AlertTitle>Success</AlertTitle>
+</Alert>
+<Alert className="border-warning/40 bg-warning/5 [&>svg]:text-warning-foreground">
+  <AlertTriangle className="size-4" />
+  <AlertTitle>Warning</AlertTitle>
 </Alert>`}
         />
       </ExampleSection>
@@ -1109,7 +1071,7 @@ function EmptyView() {
             <EmptyDescription>Try searching for something else.</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button variant="outline"><Plus className="mr-2 size-4" />Add new</Button>
+            <Button variant="outline"><Plus className="size-4" />Add new</Button>
           </EmptyContent>
         </Empty>
         <CodeBlock

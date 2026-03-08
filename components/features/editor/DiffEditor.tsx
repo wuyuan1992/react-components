@@ -54,7 +54,7 @@ const DiffCodeEditor: React.FC<DiffCodeEditorProps> = ({
   const resolvedEditorTheme: EditorTheme = theme ?? (mode === "dark" ? "vs-dark" : "light")
 
   return (
-    <div className={cn("overflow-hidden rounded-md border border-[var(--color-border)]", className)}>
+    <div className={cn("overflow-hidden rounded-md border border-border", className)} style={{width, height}}>
       <DiffEditor
         height={height}
         width={width}

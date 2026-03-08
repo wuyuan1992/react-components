@@ -24,38 +24,38 @@ import { CSS } from "@dnd-kit/utilities"
 import { cn } from "@/lib/utils"
 
 export interface SortableItemProps {
-  /** 项目 ID */
+  /** Unique item ID */
   id: UniqueIdentifier
-  /** 是否禁用拖拽 */
+  /** Disable dragging for this item */
   disabled?: boolean
-  /** 子元素 */
+  /** Item content */
   children: ReactNode
-  /** 类名 */
+  /** Additional class name */
   className?: string
-  /** 拖拽手柄选择器 */
+  /** CSS selector for the drag handle element */
   handleSelector?: string
 }
 
 export interface SortableListProps<T> {
-  /** 数据项列表 */
+  /** List of data items */
   items: T[]
-  /** 获取项目 ID 的函数 */
+  /** Returns a unique ID for each item */
   getId: (item: T) => UniqueIdentifier
-  /** 渲染每一项的函数 */
+  /** Renders each item; receives the item, its index, and whether it is being dragged */
   renderItem: (item: T, index: number, isDragging: boolean) => ReactNode
-  /** 排序变化回调 */
+  /** Called with the reordered array after a successful drag */
   onReorder?: (items: T[]) => void
-  /** 拖拽开始回调 */
+  /** Called when a drag starts */
   onDragStart?: (item: T) => void
-  /** 拖拽结束回调 */
+  /** Called when a drag ends, with the moved item and its new index */
   onDragEnd?: (item: T, newIndex: number) => void
-  /** 排序策略 */
+  /** Sorting direction strategy */
   strategy?: "vertical" | "horizontal"
-  /** 是否禁用拖拽 */
+  /** Disable all dragging */
   disabled?: boolean
-  /** 列表类名 */
+  /** Class name for the list container */
   className?: string
-  /** 每一项类名 */
+  /** Class name applied to each item wrapper */
   itemClassName?: string
 }
 
@@ -74,7 +74,7 @@ function SortableItem({ id, disabled, children, className, handleSelector }: Sor
     opacity: isDragging ? 0.5 : 1,
   }
 
-  // 如果有拖拽手柄，只在手柄上应用拖拽事件
+  // When a drag handle is configured, restrict drag events to the handle only
   const dragListeners = handleSelector ? {} : listeners
 
   return (
@@ -109,7 +109,7 @@ export function SortableList<T>({
     })
   )
 
-  // 创建 ID 到索引的映射，避免重复 findIndex
+  // Build an ID-to-index map to avoid repeated O(n) findIndex calls
   const itemIndexMap = useMemo(() => {
     const map = new Map<UniqueIdentifier, number>()
     items.forEach((item, index) => {

@@ -27,20 +27,20 @@ import { z } from "zod";
 export const action = createSafeActionClient({
   handleServerError(err) {
     logger.error({ err }, "Server action error");
-    return err instanceof Error ? err.message : "An unexpected error occurred";
+    return err instanceof Error ? err.message : "Something went wrong. Please try again.";
   },
 });
 
 export const authAction = createSafeActionClient({
   handleServerError(err) {
     logger.error({ err }, "Auth server action error");
-    return err instanceof Error ? err.message : "An unexpected error occurred";
+    return err instanceof Error ? err.message : "Something went wrong. Please try again.";
   },
 }).use(async ({ next }) => {
   const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("Unauthorized");
+    throw new Error("Please sign in to continue.");
   }
 
   return next({ ctx: { userId } });

@@ -54,7 +54,7 @@ export function DataTable<TData, TValue = unknown>({
   columns,
   data,
   searchable = false,
-  searchPlaceholder = "Search...",
+  searchPlaceholder = "Type to filter...",
   searchColumn,
   pagination = true,
   pageSizeOptions = [10, 20, 30, 50, 100],
@@ -64,7 +64,7 @@ export function DataTable<TData, TValue = unknown>({
   onSelectionChange,
   columnVisibility: enableColumnVisibility = false,
   isLoading = false,
-  emptyMessage = "No results.",
+  emptyMessage = "No results found",
   className,
   getRowId,
   onRowClick,
@@ -166,7 +166,7 @@ export function DataTable<TData, TValue = unknown>({
               }}
             >
               <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Columns" />
+                <SelectValue placeholder="Show/hide columns" />
               </SelectTrigger>
               <SelectContent>
                 {table.getAllColumns().map((column) => {

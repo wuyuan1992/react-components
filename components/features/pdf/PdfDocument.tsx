@@ -9,25 +9,25 @@ import "react-pdf/dist/Page/TextLayer.css"
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
 
 export interface PdfDocumentProps {
-  /** PDF 文件 URL 或 File 对象 */
+  /** PDF file URL or File object to display */
   file?: string | File | Blob
-  /** 缩放比例 */
+  /** Zoom level (1 = 100%) */
   scale?: number
-  /** 高度 */
+  /** Container height */
   height?: string | number
-  /** 宽度 */
+  /** Container width */
   width?: string | number
-  /** 类名 */
+  /** Additional class name for the container */
   className?: string
-  /** 页面类名 */
+  /** Additional class name for each page */
   pageClassName?: string
-  /** 加载完成回调 */
+  /** Called when PDF loads successfully */
   onLoadSuccess?: (pdf: { numPages: number }) => void
-  /** 加载失败回调 */
+  /** Called when PDF fails to load */
   onLoadError?: (error: Error) => void
 }
 
-/** 简单的 PDF 文档渲染组件（无工具栏） */
+/** Simple PDF document viewer without toolbar controls */
 const PdfDocument: React.FC<PdfDocumentProps> = ({
   file,
   scale = 1,
@@ -56,13 +56,13 @@ const PdfDocument: React.FC<PdfDocumentProps> = ({
   )
 
   return (
-    <div className={cn("overflow-auto rounded-md border border-[var(--color-border)] bg-[var(--color-background)]", className)} style={{ height, width }}>
+    <div className={cn("overflow-auto rounded-md border border-border bg-background", className)} style={{ height, width }}>
       <Document
         file={file}
         onLoadSuccess={handleDocumentLoadSuccess}
         onLoadError={handleDocumentLoadError}
-        loading={<div className="flex h-40 items-center justify-center text-[var(--color-muted-foreground)]">加载中...</div>}
-        error={<div className="flex h-40 items-center justify-center text-[var(--color-destructive)]">加载 PDF 失败</div>}
+        loading={<div className="flex h-40 items-center justify-center text-muted-foreground">Loading PDF...</div>}
+        error={<div className="flex h-40 items-center justify-center text-destructive">Could not load PDF. Please check the file and try again.</div>}
       >
         {Array.from({ length: numPages }, (_, i) => (
           <Page

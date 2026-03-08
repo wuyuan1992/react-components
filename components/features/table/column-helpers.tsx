@@ -3,8 +3,10 @@
 import type { ColumnDef, Header } from "@tanstack/react-table"
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { Badge, type badgeVariants } from "@/components/ui/badge"
+import type { VariantProps } from "class-variance-authority"
+
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>
 
 // Helper to create sortable header
 export function SortableHeader<TData, TValue>({ column, title }: { column: Header<TData, TValue>["column"]; title: string }) {
@@ -39,7 +41,7 @@ export function textColumn<TData>(
 export function statusColumn<TData>(
   accessor: keyof TData,
   header: string,
-  statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }>
+  statusConfig: Record<string, { label: string; variant: BadgeVariant }>
 ): ColumnDef<TData> {
   return {
     accessorKey: accessor as string,
@@ -107,7 +109,7 @@ export function booleanColumn<TData>(accessor: keyof TData, header: string, opti
     cell: ({ getValue }) => {
       const value = getValue() as boolean
       return (
-        <Badge variant={value ? "default" : "secondary"} className={cn(value && "bg-success text-success-foreground")}>
+        <Badge variant={value ? "success" : "secondary"}>
           {value ? (options?.trueLabel ?? "Yes") : (options?.falseLabel ?? "No")}
         </Badge>
       )
