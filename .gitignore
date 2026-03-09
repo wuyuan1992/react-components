@@ -15,3 +15,6 @@ test-results/
 
 # Vercel
 .vercel
+
+# Storybook build
+storybook-static/*
